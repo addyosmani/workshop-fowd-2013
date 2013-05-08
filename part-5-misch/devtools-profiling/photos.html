@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <style>
+    body {
+      background-image: url(denim.png);
+    }
+    .photoList {
+      height: 100%;
+      margin: 0 auto 500px auto;
+      text-align: center;
+      width: 360px;
+    }
+    .photo {
+      -webkit-transition: opacity 0.5 ease-in-out;
+      background-color: black;
+      border: 10px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.5);
+      height: 320px;
+      margin: 20px;
+      opacity: 1;
+      overflow: hidden;
+      width: 320px;
+    }
+    .photo img {
+      height: 320px;
+      margin: 0 -50%;
+    }
+    .photo.hidden {
+      opacity: 0;
+    }
+    .overlay {
+      -webkit-align-items: center;
+      -webkit-transition: opacity .5s;
+      background-color: rgba(0, 0, 0, 0.7);
+      bottom: 0;
+      display: -webkit-flex;
+      left: 0;
+      position: fixed;
+      right: 0;
+      text-align: center;
+      top: 0;
+    }
+    .overlay.hidden {
+      opacity: 0;
+    }
+    .overlay[hidden] {
+      display: none;
+    }
+    .overlay img {
+      margin: 0 auto;
+      max-height: 90%;
+    }
+  </style>
+  <script src="photos.js"></script>
+</head>
+<body>
+  <div class="photoList"></div>
+  <div class="overlay hidden" hidden></div>
+</body>
+</html>
