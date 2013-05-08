@@ -1,0 +1,1 @@
+define(["models/tasklist","views/lists/edit"],function(e,t){var n=t.extend({submit:function(){var e=this,t=this.$('input[name="title"]').val();return this.model.save({title:t},{success:function(t){bTask.collections.lists.add(t),e.remove()}}),!1}});return n});

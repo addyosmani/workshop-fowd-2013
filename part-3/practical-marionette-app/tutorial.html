@@ -1,0 +1,122 @@
+
+<h1>Creating Your First Real Marionette App</h1>
+<h3>With thanks to Dave Bouwman</h3>
+
+<h2 class="entry-title">Part 1: App Design and Page Layout</h2>
+
+
+				<div class="entry-content">
+			
+<p>It&#8217;s always a good idea to design out your app before you start coding, so let&#8217;s do that now. Of course we are NOT building ArcMap in a Browser here &#8211; instead we are going to (try) to design a simple, intuitive map that shows very specific information &#8211; in this case, wildfire data served by GeoMac.gov.</p>
+<p>We are going to have 3 distinct &#8220;states&#8221; of the application &#8211; Current Fires, Current Fire Danger, and Historic Fires. The mockup shown below shows the main interface elements: the &#8220;navbar&#8221; across the top, the &#8220;drop down&#8221; on the left, the &#8220;stats area&#8221; on the right, and some &#8220;tools&#8221; in the upper right. The center area will be used for selecting the year for the Historic Fires, as well as the Search &amp; Search Results.</p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="gmm-ui-elements.jpg" src="http://blog.davebouwman.com/wp-content/uploads/2013/02/gmm-ui-elements.jpg" alt="Interface Design" width="600" height="374" border="0" /></p>
+<p>Not shown on the mockup is the legend that we will set up across the top. We&#8217;re not gonna get too complex with the legend, but we will show some key info there.</p>
+<h2>Divide and Conquer </h2>
+<p>So &#8211; that&#8217;s what we are aiming at. Let&#8217;s start thinking about how we will divide this up into &#8220;Views&#8221; in the Backbone sense. Here is the same screen shot, but divided up into our views</p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="gmm-views.jpg" src="http://blog.davebouwman.com/wp-content/uploads/2013/02/gmm-views.jpg" alt="Application Views" width="600" height="374" border="0" /></p>
+<p>I&#8217;ve broken them down by name as follows:</p>
+<p>1) CurrentItemNameView</p>
+<p>2) Navbar</p>
+<p>3) ItemListView</p>
+<p>4a) DataYearView</p>
+<p>4b) SearchView (not shown &#8211; same container)</p>
+<p>4c) SearchResultsView (not shown &#8211; same container)</p>
+<p>5a) StatsView</p>
+<p>5b) FireDetailView (not shown &#8211; same container)</p>
+<p>6) MapView</p>
+<p>As you can tell, in this app we have areas of the screen that will be re-used by different functions. This is a somewhat unique thing about a mapping application in that most of the time, we want the map center stage, but for some operations, we want a &#8220;dialog&#8221; type interaction.</p>
+<h2>The Code</h2>
+<p>The first code drop can be found on <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.1">GitHub tagged as v0.0.1</a>.  Each part of this practical will get a different tag, so if you happen to navigate to the main branch, you&#8217;ll get the latest and greatest, but if you want to follow along, go to the tags.</p>
+<p>The main thing in this first drop is to tackle the layout. This is pretty simple markup and css so I&#8217;m not going to delve into the details &#8211; the following gist shows the code.</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/4995860.js"></script></p>
+<p>Even though I&#8217;m working from some existing production code, I&#8217;m massively streamlining the css here, so I suspect that I&#8217;ll be coming back later on to swap out the images for icon web fonts, but this is a reasonable start.</p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="gmm-v0.0.1.jpg" src="http://blog.davebouwman.com/wp-content/uploads/2013/02/gmm-v0.0.1.jpg" alt="Page Layout" width="504" height="380" border="0" /></p>
+<h2>Up Next!</h2>
+<p>Ok, so this was really just giving us some structure to work with, but it had to be done. Next, we start building the app, and slinging some javascript to setup the <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.application.md">Application</a>, some <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.region.md">Regions</a>, the <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.application.module.md">Modules</a> and <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.controller.md">Controllers</a>.</p>
+					</div><!-- .entry-content -->
+
+
+<h2>Part 2: Marionette Application, Modules and Controllers</h2>
+<p>This covers Marionette Application, Module, Controller, ItemView, CollectionView and a little on Events.</p>
+<p>Code: <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.2">github tagged v0.0.2</a> </p>
+<p>Demo: <a href="http://dbouwman.github.com/geomacmapper">http://dbouwman.github.com/geomacmapper</a></p>
+
+<p>Working from the rough layout I created in the last part of the practical, the next thing to do is dive into the JavaScript.</p>
+<p>First, grab Marionette and it&#8217;s dependencies from <a href="http://marionettejs.com/">MarionetteJs.com</a>. Drop these into a /javascript/libs/marionette folder, and add script tags into our index.html to load them up.</p>
+<h2>Creating the Application</h2>
+<p>The next thing we need is a Marionette <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.application.md">Application</a>. This will form the hub of our application, and the main starting point that we pass in our configuration json that will setup the app for us.</p>
+<p>At this point the application is super simple as shown in this gist&#8230;</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/4982959.js"></script></p>
+<p>As we develop the application we will setup more Regions &#8211; right now we just have the one region for the tools &#8211; and this is the container that will hold our tool items in the upper right. Unlike vanilla Backbone, with Marionette we don&#8217;t usually inject elements directly into the DOM &#8211; instead we use a Region, which helps mitigate issues with <a href="http://lostechies.com/derickbailey/2011/09/15/zombies-run-managing-page-transitions-in-backbone-apps/">zombie event handlers</a>, but more on this later. </p>
+<h2>The Navbar: Module + Controller</h2>
+<p>The top bar of our app has a few things to manage. From left to right, it&#8217;s got a logo, the &#8220;menu&#8221; label and  icon, and then a set of tools off on the right. </p>
+<p>The first three things can be in-lined into the page as they are pretty static, but we want to build our app to be configurable, and the tools sound like something we may want to change down the line. Since we&#8217;re working with javascript, we are going to pass in our configuration as json &#8211; here is the our starting &#8220;options&#8221; object:</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/4993061.js"></script></p>
+<p>Ok, now we need to write some code to manage the Navbar. In Marionette we create a <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.controller.md">Controller</a> to handle this, and we put it inside a <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.application.module.md">Module</a> to keep things nice and tidy. In the gist you can see that we create the module by calling the module() method on our application. This is standard Marionette practice, and it allows the application to &#8220;know&#8221; about a module, and call initialize() on it as the app is spinning up. Here is an example of a skeleton of a Module with a Controller.</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/4992923.js"></script></p>
+<p>Now, to wire things up. First off, the Module will get passed the options hash that we pass into the application. In the Module&#8217;s initialize method, we create a controller, and pass the options hash in, along with the <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.region.md">Region</a>. </p>
+<p>From there the process is pretty simple: we take the toolItems array from the options hash, convert that into a Backbone.Collection of ToolItemModels, then throw that to a ToolListView and ask the region to show that view. Then wire up events from the navbar, and respond to any Application events, and it&#8217;s done. Simple!</p>
+<h2>Breaking It Down</h2>
+<p>Backbone works with <a href="http://backbonejs.org/#Model">models</a> and <a href="http://backbonejs.org/#Collection">collections</a> of models. So we need to setup our model by extending Backbone.Model. Same thing with the collection, but we extend… (wait for it) Backbone.Collection. This is at line 65 in the gist below.</p>
+<p>Now we get to some Marionette goodness. To display our tool items, we want to iterate a list (the collection) and use that to create a ul &gt; li structure. The individual li elements will be created and managed by instances of ToolItemView, which extends <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.itemview.md">Marionette.ItemView</a>. The ul and it&#8217;s contained collection of li&#8217;s (ToolItemView) will be created by an instance of ToolListView, which extends <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.collectionview.md">Marionette.CollectionView</a>. This is at line 71 in the gist below. Since we want something to happen when a user clicks these tools, we need to have a handler in the mix. This is another place where Backbone &amp; Marionette really rock &#8211; the events hash in the ToolItemView definition sets up the click event. When this is called, the model for that item will automagically be set to this.model. Since we are building a decoupled application, the implementation of these tools will be in another module, so all we do in the itemView is trigger an event &#8211; the name of which is specified in our options hash. Neat, clean, and oh so separated!</p>
+<p> </p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/4992956.js"></script></p>
+<p>In proof reading this, it sounds awfully complex, but it&#8217;s really pretty straight forward. Granted that for this particular item, this may be overkill, but as your app grows, doing it all via a consistent set of patterns will massively out-weight the little extra code.</p>
+<p>While working on this I decided to swap out the images for icon fonts, and a <a href="http://jsfiddle.net/dbouwman/QTPKT/">simple jsfiddle</a> - check it out as it&#8217;s a nice place to play with ItemViews and CollectionViews outside of a module/controller/application environment. It also shows that you can pick and choose the elements of Marionette that you want to use in your app.</p>
+<h2 style="font-size: 1.5em;">Events</h2>
+<p>Events are tie our whole app together, so it&#8217;s worth a bit more explanation. Marionette events are handled through Application.vent (gmm.Viewer.vent in our case).</p>
+<p>The syntax is simple: vent.on(&lt;eventname&gt;,handler) and vent.trigger(&lt;eventname&gt;). The event name is just a string, so it&#8217;s a good idea to come up with some sort of a naming scheme in your development. I&#8217;ve been using a pseudo-namespacing pattern like &#8216;Map:HideControls&#8217; or Map:SetCenterAndZoom&#8217; but it really does not matter what you use &#8211; just keep a list of them somewhere as it&#8217;s handy to know how to call things later on.</p>
+<h2>MenuModule</h2>
+<p>The menu module is more or less the same, so I&#8217;ve gone ahead and implemented that as well. While coding things, I made some additional changes from the layout on the first part of the practical &#8211; I swapped out the original images used in the first part with icons in a web font, and added some CSS3 transitions. Checkout weloveiconfonts.com, as they&#8217;ve got some cool, free, icon font&#8217;s just set up and waiting to be used!</p>
+<h2>Summary</h2>
+<p>Ok &#8211; this has covered a lot of terriory &#8211; so lets review: We use modules to separate out the concerns of our application. We add modules to an application via an Immediately Invoked Function Express (IFFE) that creates the module. Inside the module we create a controller to do the orchestration of our views and events. In this part of the practical we really just created static views &#8211; the collections that back them do not change, and they are only rendered once.</p>
+<p>Up next we will tackle the Search tool. When the user clicks this tool, we will show a &#8220;dialog&#8221; in the middle of the screen with a text box, then send that value (hopefully an address/place) over to the Esri geocoder, show a disambiguation list if necessary and then raise an event that the map will handle when we implement it. This should be a good way to cover some aspects of &#8220;dynamic&#8221; data with this framework. </p>
+<h2>Code</h2>
+<p>Code for this part of the practical is <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.2">tagged v0.0.2</a>, and it&#8217;s also available at <a href="http://dbouwman.github.com/geomacmapper">http://dbouwman.github.com/geomacmapper</a></p>
+					</div>
+					
+
+<h2 class="entry-title">Part 3: Handling Sub-Views with Layouts</h2>
+									
+
+				<div class="entry-content">
+		
+<p> </p>
+<p>The next thing we will implement is a layer list. Now, I know <a href="http://mapbrief.com/2013/02/07/paralysis-of-choice-why-map-portals-dont-work-part-ii/">some of you don&#8217;t much care of layer list controls</a>, and I tend to agree, but they just happen to be a good way to review <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.layout.md">Layouts</a>, so bear with me. </p>
+<h2> The Layer List</h2>
+<p>So, let&#8217;s look at what we are trying to create &#8211; here&#8217;s a screen cap of the finished layer list.</p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="layer-lits.jpeg" src="http://blog.davebouwman.com/wp-content/uploads/2013/02/layer-lits.jpeg" alt="Layer List Image" width="537" height="151" border="0" /></p>
+<p>Pretty simple stuff right? </p>
+<p>We could just use static mark up, drop in some data-* attributes, use jquery to handle some click events, locate the layer in the map, and toggle it&#8217;s visibility, right?</p>
+<p>That works, but is a recipe for spaghetti code and maintenance nightmares. A much better options is to structure this into a configurable, modular, loosely coupled component. This means that our Layer List should have no direct knowledge of the Map and vice versa. We will communicate between the two with Events.</p>
+<p>Looking at the design, we have a header area, with a title, an icon to close out the view, and two lists &#8211; one for operational layers, and the other for base maps. The first thing we have to think about is: Where will we get these lists from? One option would be to query the map component, but since we are sending configuration json into the app, lets use that.</p>
+<h2>Map Layer Configuration</h2>
+<p>To keep things organized, I&#8217;ve added mapConfig into our options hash, and added base maps and operationalLayers below that, as seen in the following gist.</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5026034.js"></script></p>
+<p>With this in place, we can create a module &amp; controller just like we did last time, and in the initialize() of the controller, we pull the two arrays of layers from the mapConfig and start using them.</p>
+<p>Since these arrays don&#8217;t change at run-time, we can do all the work in initialize(). The steps are as follows:</p>
+<ol>
+<li>Convert the arrays into Backbone collections</li>
+<li>Create the <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.collectionview.md">CollectionViews</a>, and pass in the Collections.</li>
+<li>Create the <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.layout.md">LayoutView</a></li>
+<li>Call render() on the LayoutView by passing it into the module&#8217;s region.show() method (more below on this)</li>
+<li>Call show() on the regions in the layout, passing in the collection views created in #2</li>
+<li>Register Event Handlers to show/hide the panel</li>
+</ol>
+<p>Here&#8217;s the initialize method:</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5026063.js"></script></p>
+<h2>More on Layouts&#8230;</h2>
+<p>A <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.layout.md">Marionette.Layout</a> is a view that is specifically designed to have sub-views. In our case, the sub-views will be the two lists. Layouts handle this by having a set of <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.region.md">Regions</a>. Regions are defined using a selector, and are basically a container into which views can be rendered. Recall that we don&#8217;t simply inject views into the DOM directly, instead we use Regions, as they will handle all the event clean up for us.</p>
+<p>Let&#8217;s look at the markup&#8230;</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5026118.js"></script></p>
+<p>As usual, the markup in the page itself is minimal &#8211; just a div with and id. The layer-list-template is the template for the Layout. As you can see, it has div&#8217;s with id&#8217;s basemaps-list and layers-list respectively. These are the Regions, which will be populated by CollectionViews rendering <a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.itemview.md">ItemViews</a> which use the basemap-item-template and layer-item-template. </p>
+<p>Here is a snipped showing the Layout</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5026151.js"></script></p>
+<p> </p>
+<p>If you look at the initialize method snipped above, you will see that we have to render these things in order. Before we can call .show() on the Layout&#8217;s regions, their DOM nodes need to be in the DOM. Adding complexity here is that our Layout is itself being rendered into a Region ( that the this.region.show(this.layout) bit).</p>
+<p>Since I covered ItemViews and Collection views in Part 2, I&#8217;ll let you look at the source for those details.</p>
+<p>Once again, I created a <a href="http://jsfiddle.net/dbouwman/ysDFm/">jsfiddle</a> while I was wrapping my head around using a Layout that itself was rendered into a Region. </p>
+<h2>Code </h2>
+<p>Code for this part of the practical is <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.3">tagged v0.0.3</a> on github</p>
+<p>Latest version of the app can be seen at <a href="http://dbouwman.github.com/geomacmapper">http://dbouwman.github.com/geomacmapper</a></p>
+					</div><!-- .entry-content -->

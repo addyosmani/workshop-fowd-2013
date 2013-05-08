@@ -1,0 +1,32 @@
+@import 'foundation';
+
+body { min-height: 480px; line-height: 18px; }
+.row { max-width: 900px; }
+h2, h3, h6 { font-family: "OpenSans"; color: #6F6F6F; font-weight: 500; padding: 10px 0; }
+
+#count {
+  text-align: center;
+  h3 { padding: 3px 0; }
+}
+
+#dream_name { padding: 26px 15px 25px; }
+
+#dreams {
+  li { list-style: none; }
+  .sortable-placeholder { border: 1px dotted #CCC; padding: 25px 14px; margin-bottom: 20px;}
+  .panel.dream { padding: 10px 14px; margin-bottom: 20px; }
+  .input-text {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: none;
+    box-shadow: none;
+    width: 91%;
+    display: inline-block;
+  }
+  .destroy { float: right; margin-top: 6px; }
+  .active { border: 1px solid #CCC; }
+}
+
+.columns.centered.footer { text-align: center; margin-bottom: 20px; }

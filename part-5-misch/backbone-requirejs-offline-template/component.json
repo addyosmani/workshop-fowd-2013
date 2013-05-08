@@ -1,0 +1,11 @@
+{
+  "name": "backbone-offline-test",
+  "version": "0.1.0",
+  "dependencies": {
+    "requirejs": null,
+    "jquery": null,
+    "backbone-amd": null,
+    "backbone.offline": "https://raw.github.com/Ask11/backbone.offline/master/js/backbone_offline.js",
+    "underscore-amd": null
+  }
+}

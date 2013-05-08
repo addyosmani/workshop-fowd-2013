@@ -1,0 +1,1 @@
+define(["models/tasklist"],function(e){var t=Backbone.Collection.extend({model:e,url:"tasklists"});return t});

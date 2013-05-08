@@ -1,0 +1,1 @@
+define(["text!templates/auth.html"],function(e){var t=Backbone.View.extend({el:"#sign-in-container",template:_.template(e),events:{"click #authorize-button":"auth"},initialize:function(e){this.app=e},render:function(){return this.$el.html(this.template()),this},auth:function(){return this.app.apiManager.checkAuth(),!1}});return t});

@@ -1,0 +1,45 @@
+body {
+  padding: 10px;
+}
+
+.status {
+  width: 500px;
+}
+
+.posts {
+  width: 500px;
+}
+
+.post {
+  padding: 4px;
+  margin-bottom: 14px;
+  background-color: #EAF1FB;
+}
+
+.create-comment {
+  margin-left: 40px;
+}
+
+.comments {
+  margin-top: 8px;
+  margin-left: 40px;
+  margin-right: 10px;
+  background-color: #DBF0F7;
+}
+
+.comment {
+  padding: 4px;
+}
+
+.likes {
+  margin: 5px;
+  font-style: italic;
+}
+
+.like {
+  margin: 5px;
+}
+
+.username {
+  font-weight: bold;
+}

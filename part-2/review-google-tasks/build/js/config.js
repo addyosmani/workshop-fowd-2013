@@ -1,0 +1,1 @@
+define([],function(){var e={};return e.apiKey="AIzaSyCUGJAwwNSwG5Fwn3dVZVwyFvkhIHjrP4Y",e.scopes="https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/userinfo.profile",e.clientId="1065820464686-ictocu6acrrlc27g50d6eukh05h9nb5e.apps.googleusercontent.com",e});

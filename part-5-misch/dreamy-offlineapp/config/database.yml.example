@@ -1,0 +1,17 @@
+default: &default
+  adapter: postgresql
+  host: localhost
+  username: postgres
+  password: ''
+
+development:
+  <<: *default
+  database: dreamy_development
+
+test:
+  <<: *default
+  database: dreamy_test
+
+production:
+  <<: *default
+  database: dreamy
