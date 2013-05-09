@@ -3,6 +3,25 @@
 ## Models
 
 ```javascript
+var Palette = Backbone.Model.extend({
+	pickColor: function(){
+		var bgColor = prompt('Please enter a color:');
+		this.set({color: bgColor});
+	}
+});
+
+window.palette = new Palette;
+
+palette.on('change:color', function(model, bgColor){
+	$('body').css({background: bgColor});
+});
+
+palette.set({color: 'pink'});
+
+palette.pickColor();
+```
+
+```javascript
 var model = new Backbone.Model();
 model.set('name', 'Some Guy');
 model.get('name');
@@ -20,25 +39,6 @@ productModel.fetch();
 productModel.save();
 ```
 
-
-```javascript
-var Palette = Backbone.Model.extend({
-	pickColor: function(){
-		var bgColor = prompt('Please enter a color:');
-		this.set({color: bgColor});
-	}
-});
-
-window.palette = new Palette;
-
-palette.on('change:color', function(model, bgColor){
-	$('#palette').css({background: bgColor});
-});
-
-palette.set({color: 'pink'});
-
-palette.pickColor();
-```
 
 ```javascript
 var Smurf = Backbone.Model.extend({
@@ -115,6 +115,31 @@ console.log( tripsAlbum.models );
 
 ```
 
+
+## Views
+
+```javascript
+var PhotoView = Backbone.View.extend({
+
+	initialize: function(){
+		this.model.on('change', this.render, this);
+	},
+	render: function(){
+		this.$el.html('Name:' + this.model.get('name'));
+	}
+	
+});
+
+var photoView = new PhotoView({
+	model: Photo,
+	el: $('.photo')
+});
+
+photoView.render();
+```
+
+
+
 ## Router
 
 ```javascript
@@ -127,9 +152,9 @@ var Workspace = Backbone.Router.extend({
 	    "search/:query/p:page": "search"   // #search/red/p7
 	},
 	
-	about: function(){ ... },
-	download: function(path){ ... },
-	search: function(query, page){ ... }
+	about: function(){  },
+	download: function(path){ },
+	search: function(query, page){  }
 	
 });
 ```
@@ -153,22 +178,6 @@ window.router = new Router;
 Backbone.history.start({pushState: true});
 ```
 
-## Views
-
-```javascript
-var ProductView = Backbone.View.extend({
-  tagName: 'div',
-  className: 'product',
-  template: '{{ name }}: {{ description }}',
-  render: function(){
-    var html = Mustache.render(
-      this.template,
-      this.model.attributes
-    );
-    this.$el.html(html);
-  }
-});
-```
 
 ## Events
 

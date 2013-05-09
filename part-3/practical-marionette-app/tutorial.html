@@ -1,11 +1,13 @@
-
-<h1>Creating Your First Real Marionette App</h1>
-<h3>With thanks to Dave Bouwman</h3>
+<html>
+	<head>
+		<title>Marionette tutorial</title>
+	</head>
+	<body>
+		<h1>Creating Your First Real Marionette App</h1>
 
 <h2 class="entry-title">Part 1: App Design and Page Layout</h2>
 
-
-				<div class="entry-content">
+<div class="entry-content">
 			
 <p>It&#8217;s always a good idea to design out your app before you start coding, so let&#8217;s do that now. Of course we are NOT building ArcMap in a Browser here &#8211; instead we are going to (try) to design a simple, intuitive map that shows very specific information &#8211; in this case, wildfire data served by GeoMac.gov.</p>
 <p>We are going to have 3 distinct &#8220;states&#8221; of the application &#8211; Current Fires, Current Fire Danger, and Historic Fires. The mockup shown below shows the main interface elements: the &#8220;navbar&#8221; across the top, the &#8220;drop down&#8221; on the left, the &#8220;stats area&#8221; on the right, and some &#8220;tools&#8221; in the upper right. The center area will be used for selecting the year for the Historic Fires, as well as the Search &amp; Search Results.</p>
@@ -26,7 +28,10 @@
 <p>6) MapView</p>
 <p>As you can tell, in this app we have areas of the screen that will be re-used by different functions. This is a somewhat unique thing about a mapping application in that most of the time, we want the map center stage, but for some operations, we want a &#8220;dialog&#8221; type interaction.</p>
 <h2>The Code</h2>
-<p>The first code drop can be found on <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.1">GitHub tagged as v0.0.1</a>.  Each part of this practical will get a different tag, so if you happen to navigate to the main branch, you&#8217;ll get the latest and greatest, but if you want to follow along, go to the tags.</p>
+
+<p>The first code drop can be found in geomacmapper-0.0.1</p>
+
+<p>Each part of this practical will get a different directory, so if you happen to navigate to the main branch, you&#8217;ll get the latest and greatest, but if you want to follow along, go to the tags.</p>
 <p>The main thing in this first drop is to tackle the layout. This is pretty simple markup and css so I&#8217;m not going to delve into the details &#8211; the following gist shows the code.</p>
 <p><script type="text/javascript" src="https://gist.github.com/dbouwman/4995860.js"></script></p>
 <p>Even though I&#8217;m working from some existing production code, I&#8217;m massively streamlining the css here, so I suspect that I&#8217;ll be coming back later on to swap out the images for icon web fonts, but this is a reasonable start.</p>
@@ -38,7 +43,7 @@
 
 <h2>Part 2: Marionette Application, Modules and Controllers</h2>
 <p>This covers Marionette Application, Module, Controller, ItemView, CollectionView and a little on Events.</p>
-<p>Code: <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.2">github tagged v0.0.2</a> </p>
+<p>Code: geomacmapper-0.0.2</a> </p>
 <p>Demo: <a href="http://dbouwman.github.com/geomacmapper">http://dbouwman.github.com/geomacmapper</a></p>
 
 <p>Working from the rough layout I created in the last part of the practical, the next thing to do is dive into the JavaScript.</p>
@@ -72,7 +77,7 @@
 <p>Ok &#8211; this has covered a lot of terriory &#8211; so lets review: We use modules to separate out the concerns of our application. We add modules to an application via an Immediately Invoked Function Express (IFFE) that creates the module. Inside the module we create a controller to do the orchestration of our views and events. In this part of the practical we really just created static views &#8211; the collections that back them do not change, and they are only rendered once.</p>
 <p>Up next we will tackle the Search tool. When the user clicks this tool, we will show a &#8220;dialog&#8221; in the middle of the screen with a text box, then send that value (hopefully an address/place) over to the Esri geocoder, show a disambiguation list if necessary and then raise an event that the map will handle when we implement it. This should be a good way to cover some aspects of &#8220;dynamic&#8221; data with this framework. </p>
 <h2>Code</h2>
-<p>Code for this part of the practical is <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.2">tagged v0.0.2</a>, and it&#8217;s also available at <a href="http://dbouwman.github.com/geomacmapper">http://dbouwman.github.com/geomacmapper</a></p>
+<p>Code for this part of the practical is in geomacmapper-0.0.2</p>
 					</div>
 					
 
@@ -117,6 +122,152 @@
 <p>Since I covered ItemViews and Collection views in Part 2, I&#8217;ll let you look at the source for those details.</p>
 <p>Once again, I created a <a href="http://jsfiddle.net/dbouwman/ysDFm/">jsfiddle</a> while I was wrapping my head around using a Layout that itself was rendered into a Region. </p>
 <h2>Code </h2>
-<p>Code for this part of the practical is <a href="https://github.com/dbouwman/geomacmapper/tree/v0.0.3">tagged v0.0.3</a> on github</p>
-<p>Latest version of the app can be seen at <a href="http://dbouwman.github.com/geomacmapper">http://dbouwman.github.com/geomacmapper</a></p>
+<p>Code for this part of the practical is in geomacmapper-0.0.3</p>
 					</div><!-- .entry-content -->
+
+
+<h2>Part 4: Adding Address Search and the Map</h2>
+<p>Since the last part of the practical I wired in a few more sections of the app which were more or less copies of other sections. When clicked, the &#8220;Historic Fires&#8221; item in the main menu now shows a list of years for which data is available, and raises an event that the map will eventually respond to. Check out the code for details, but it&#8217;s basically a Layout, with a child region that is filled by a CollectionView that grinds out ItemViews. The click event on the ItemViews grab the model and raise the event.  Cake.</p>
+<h2>Adding the Esri Geocoder</h2>
+<p>The search button in the upper left allows a user to search for an address or point of interest. Since we are working with Esri technology for this series, I created a EsriGeocodeSearchModule, and since we are building a loosely coupled application, this module does not interact with the map directly. As mentioned earlier in the series, we will use Events to send messages between the components.</p>
+<p>Although there is a handy &#8220;<a href="http://help.arcgis.com/en/webapi/javascript/arcgis/jsapi/#geocoder">geocode-widget</a>&#8221; available from Esri, the calls to the <a href="http://resources.arcgis.com/en/help/arcgis-online-geocoding-rest-api/">geocode service</a> are super simple, so I just used jQuery.ajax. The code is dead-simple as shown below:</p>
+<p><script src="https://gist.github.com/dbouwman/5131087.js"></script></p>
+<p>When we get the results back, we do one of two things:</p>
+<p>a) if there is exactly one result, we simply raise the Map:CenterAt event, passing in the x,y returned from the service.</p>
+<p>b) if there are <em>any other number of results</em>, we load them into a collection, and hand that to a Marionette.CollectionView to render into the region in our Marionette.Layout.</p>
+<p> Here is a screen cap showing the geocode view, following a search which returned multiple matches.</p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="geocode-example.jpeg" src="http://blog.davebouwman.com/wp-content/uploads/2013/03/geocode-example.jpeg" alt="Geocode example" width="500" height="335" border="0" /></p>
+<p>My point about &#8220;any other number of results&#8221; was on purpose. My first thought was I&#8217;d have to handle the case of zero results separately from handling more than one. But &#8211; here is an interesting thing &#8211; you can define an &#8220;<a href="https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.collectionview.md#collectionviews-emptyview">emptyView</a>&#8221; for a Marionette.CollectionView, and if the collection is empty, the CollectionView will render the emptyView instead. This is a great example of code being designed &#8220;to do the right thing&#8221;. In our code, the enptyView is just a simple itemView whose template just has a message.</p>
+<p>The only other interesting thing I did with this example was to make the magnifying glass on the search button rotate while the ajax request is running. I wanted some sort of activity indicator, and this seemed like a good time to play with some CSS3 transitions &#8211; right now these are only working in webkit, but it looks like I can make them work across the board in good browsers. Moving on! </p>
+<h2>Adding the Map</h2>
+<p> So &#8211; I&#8217;ve intentionally left the map out as long as possible. The main reason was to force myself to setup all the events and interactions BEFORE the map was in place, thus ensuring that the map did not &#8220;leak&#8221; into other ares of the app due to convenience.</p>
+<p>The <a href="https://github.com/dbouwman/geomacmapper/blob/v0.0.4/javascript/EsriMapModule.js">EsriMapModule</a> follows the same pattern as all the others &#8211; it simply sets up the map during the Controller.initialize function. Recall that we really want to make this app as configurable as possible, so we pass in the base maps and operational layers via the application configuration. This makes the initialization pretty simple &#8211; parse out the layers, check out their &#8220;type&#8221;,instantiate the appropriate type of Layer in the Esri javascript library, and add them to the map, setting the visibility along the way &#8211; here is a snipped showing those two functions:</p>
+<p><script src="https://gist.github.com/dbouwman/5131149.js"></script></p>
+<p> </p>
+<p>The next thing I wired up were the events. At this point we have 6 events to listen for:</p>
+<ol>
+<li>Map:ShowControls &#8211; show the + / &#8211; zooming controls</li>
+<li>Map:HideControls &#8211; hide the + / &#8211; zooming controls. used when the menu pops down</li>
+<li>Map:SetBasemap &#8211; raised by our layer list &#8211; tells the map what basemap to show</li>
+<li>Map:SetLayerVisibility &#8211; raised by our layer list &#8211; set the visibility of an operational layer</li>
+<li>Map:FireLayer:DataChanged &#8211; updates the Fire Layer when new data has been loaded. More in the next part of the practical</li>
+</ol>
+<div>The first two are trivial &#8211; just use jQuery to show/hide the zoom controls.</div>
+<div>Showing and hiding layers is also pretty simple. For operational layers, we can have multiple layers turned on, so we just locate the layer in the map by the label that&#8217;s passed in, and set it&#8217;s visibility.</div>
+<div>Basemaps can only have one visible at any time, so we loop over all the base maps, turn on the one that was passed in, and turn off the others.</div>
+<div> </div>
+<div>Now &#8211; those familiar with the Esri javascript api may ask why I did not specify the base maps using the new convenience methods. The answer is simple &#8211; down the line I want to swap out the Esri javascript map control with Leaflet (just to see how hard it will be) and so passing in the full url and type of the layer will make that easier. If that was not on my &#8220;hacking to-do list&#8221;, then I certainly would have used the convenience methods.</div>
+<h2>Next Steps: Adding Wildfires </h2>
+<p>The heart of this application is showing wildfires from Geomac.gov. Their main map service (<a href="http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer">http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer</a>) breaks out the fires across a number of layers.</p>
+<ul>
+<li>Current fires (aka &#8220;burning&#8221;) are in layer 0, with the associated perimeters (if any) in layer 1.</li>
+<li>All fires for the current year (active and inactive) are in layer 4.</li>
+<li>All perimeters from all previous years, are in layer 5,</li>
+<li>Layers 7 through 17 hold historic fires (points) from 2012 back to 2007.</li>
+</ul>
+<p>In our app we want to have the following options:</p>
+<p>a) View Current Fires and Perimeters</p>
+<p>b) View Historic Fires, by year, back to 2005.</p>
+<p>The layout of this service is pretty good for some uses, but for our app it would have been much easier if they had all the wildfires in one layer, and all the perimeters in another. Then switching between &#8220;years&#8221; would simply mean changing the &#8220;definition query&#8221; (essentially a &#8220;where-clause&#8221;) used when requesting the map image. But, that&#8217;s not the case, and we don&#8217;t control the data, so we have to live with it.</p>
+<p>Additionally, the cartography likely makes sense for fire fighters, but it&#8217;s not too great for the public, so using the MapServices directly is not going to work for us. We need more control.</p>
+<p>How I tackle this will be the subject of the next (and final!) part of the practical in this series.</p>
+<h2>Code</h2>
+<p>The code for this part of the practical is in geomacmapper-0.0.4</p>
+					</div><!-- .entry-content -->
+					
+
+					
+<h2>Sharable Maps </h2>
+<p>Maps are great on their own, but to be really useful, we need to be able to share them with others. For our example application, sharing needs to mean more than &#8220;here&#8217;s the url &#8211; find the XYZ fire and check out what&#8217;s happening&#8221;. Instead, we want to allow users to share the app AND the current viewing context the same way they share anything else &#8211; copy the url, and email/tweet/facebook/pinterest away.</p>
+<p>This means we need a way to store &#8220;context&#8221; in the url, and this is where the <a href="http://backbonejs.org/#Router">Backbone Router</a> comes into play. By using the router, we can add linkable, bookmarkable, sharable URLs into our app with very little work. To keep things simple here, we are just going to store the map center, and the current zoom level in the url.</p>
+<p>In keeping with our established pattern of putting code into modules, I created the RouterModule.js file, and set it up the same way. Additionally, I&#8217;m using events to communicate between the EsriMapModule and the Router so we keep things separated.</p>
+<p>The core logic goes like this:</p>
+<ul>
+<li>When the map extent changes, and event is raised telling the router to update the page url. The lat/long of the center of the map as well as the current zoom level are passed along.</li>
+<li>The router is notified of the event, and it creates the appropriate url &#8220;fragment&#8221; and updates the url on the page, and also updates the history in the browser.</li>
+<li>Additionally, when the app loads, it parses out the url fragment, and the router raises an event, asking the map to set the center and zoom level.</li>
+</ul>
+<p>The router code itself is very simple as shown in this gist:</p>
+<p><script src="https://gist.github.com/dbouwman/5215610.js"></script></p>
+<p>The important stuff is really setting up the routes in the routes hash, and then the handler, called centerAndZoom, which really just raises and event for the map to deal with.</p>
+<p>Over on the EsriMapModule, we had to make a few additions. First, we hooked an event handler to the onZoomEnd and onPanEnd events. In both cases, we just get the current center of the map, and the zoom level, then raise the event and let the Router take care of things for us.</p>
+<p><script src="https://gist.github.com/dbouwman/5215657.js"></script></p>
+<p>Now, the obvious thing is that we are not sharing the complete state of our application &#8211; suppose I&#8217;m looking at a fire from 2010, how would we handle that? The easiest option is to add some additional optional parameters to our route, and we will look at doing that after we get the fire points display wired up in the next part of the practical.</p>
+<h2>Code</h2>
+<p>The code for this part of the practical is in geomapmapper-0.0.5</p>
+					</div><!-- .entry-content -->
+					
+					
+<h2>Displaying Wildfires</h2>
+<p>So, this is where it all comes together… first, here is a shot of the app showing 2000+ wildfires from 2012</p>
+<p><img style="display: block; margin-left: auto; margin-right: auto;" title="gmm-v0.0.6.jpeg" src="http://blog.davebouwman.com/wp-content/uploads/2013/03/gmm-v0.0.6.jpeg" alt="Gmm v0 0 6" width="560" height="442" border="0" /></p>
+<p>Recall from Part 4 that the heart of this application is showing wildfires from Geomac.gov. Their main map service (<a href="http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer">http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer</a>) breaks out the fires across a number of layers.</p>
+<ul>
+<li>Current fires (aka &#8220;burning&#8221;) are in layer 0, with the associated perimeters (if any) in layer 1.</li>
+<li>All fires for the current year (active and inactive) are in layer 4.</li>
+<li>All perimeters from all previous years, are in layer 5,</li>
+<li>Layers 7 through 17 hold historic fires (points) from 2012 back to 2007.</li>
+</ul>
+<p>In our app we want to have the following options:</p>
+<p>a) View Current Fires and Perimeters</p>
+<p>b) View Historic Fires, by year, back to 2005.</p>
+<p>The layout of this service is pretty good for some uses, but for our app it would have been much easier if they had all the wildfires in one layer, and all the perimeters in another. Then switching between &#8220;years&#8221; would simply mean changing the &#8220;definition query&#8221; (essentially a &#8220;where-clause&#8221;) used when requesting the data. But, that&#8217;s not the case, and we don&#8217;t control the data, so we have to live with it.</p>
+<p>Additionally, the cartography likely makes sense for fire fighters, but it&#8217;s not too great for the public, so using the MapServices directly is not going to work for us. We need more control.</p>
+<h2>Fetching Data</h2>
+<p>In order to keep things separated, I put all the logic for fetching the data into FireManagerModule.js, and it&#8217;s job is to listen to one event: &#8216;FireLayer:ConfigChanged&#8217;. </p>
+<p>That event is raised from the HistoricFiresModule when an item is clicked, and essentially we pass over the following structure:</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5218855.js"></script></p>
+<p> </p>
+<p>The FireManagerModule, then takes this and the fun begins. The simplest thing would be to just load up the layer as a feature layer and assign a custom renderer, but we are trying to be decoupled here and if we wanted to swap out the map to Leaflet, we&#8217;d have a bunch more hoops to jump through to &#8220;teach&#8221; Leaflet how to work with a feature layer. So, we will use jQuery to fetch all the features into an array and throw that to the map and let it sort out how to handle things.</p>
+<p>Sounds good right? Except the ArcGIS server can return a maximum of 1000 records. Hmmm… that makes it more interesting. The basic process boils down to this:</p>
+<ul>
+<li>call query on the layer specifying to only return the Ids (no maximum on this)</li>
+<li>loop over the id&#8217;s in set batches, and query to get the features</li>
+<li>accumulate the features in an array</li>
+<li>handle the fact we launch multiple async requests, and need to do something when they have ALL completed</li>
+<li>raise the Map:ShowFires event, and pass along the array of features</li>
+</ul>
+<p>Sounds much worse than it is, and I&#8217;m sure the current implementation could use some love, but it&#8217;s working. Feel free to hack at this <a href="http://jsfiddle.net/dbouwman/sJ7v6/">jsfiddle</a> which is doing much the same thing, or fix it up and hit me with a pull request.</p>
+<h2>Server-less FeatureLayers</h2>
+<p>When the EsriMapModule gets the array of features, the next step is to stuff it into the map. This is where the <a href="http://help.arcgis.com/en/webapi/javascript/arcgis/jsapi/featurelayer.html#FeatureLayer/FeatureLayerConst2">esri.layers.FeatureLayer&#8217;s</a> constructor overload really helped. Usually a FeatureLayer is connected to a FeatureService, but that&#8217;s not always needed &#8211; you can construct a FeatureLayer by just padding it a FeatureCollectionObject, which has a definition of the layer (attributes, renderer etc), and a featureSet. Conveniently a featureSet is an array of Features. Shazam! Ok, this is not very &#8220;backboney&#8221;, or &#8220;marionetteish&#8221;, but stuffing a collection in the middle of this was only going to make things more complex.</p>
+<p>To get this done, I created a function that would return the layer Definition object:</p>
+<p> </p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5218897.js"></script></p>
+<p>With that in hand, I could just setup the rest of the layer like so:</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5218914.js"></script></p>
+<p> </p>
+<h2>Adding Year into the Router</h2>
+<p>This was more complex than I&#8217;d hoped, and I&#8217;m not thrilled with the current solution, so I&#8217;ll likely continue to hack on this over time. Anyhow &#8211; the easy part was adding an optional parameter to the route, which allowed the app to handle urls like</p>
+<p>http://localhost/marionette-map/#map/-92.27/34.34/5</p>
+<p>or </p>
+<p>http://localhost/marionette-map/#map/-92.27/34.34/5/2006</p>
+<p>What was more complex was working out how to &#8220;set&#8221; the year in the router, and then how to correctly &#8220;re-hydrate&#8221; the map to the specified &#8220;state&#8221;.</p>
+<p>I ended up having the router listen for the FireLayer:ConfigChanged event, as that&#8217;s what&#8217;s used to inform the rest of the application about a change in what&#8217;s shown on the map, and then the router held on to this value.</p>
+<p>To get the map to re-hydrate correctly, I needed to wait until the map was loaded, and then raise the appropriate events. It was easy enough to add a Map:Loaded event into the mix, and have the router listen for that, and then, if it had values parsed from the url, raise the needed events as shown below&#8230;</p>
+<p><script type="text/javascript" src="https://gist.github.com/dbouwman/5218940.js"></script></p>
+<p>The app is now live over at github, so here are some example Urls to play with:</p>
+<p>High Park fire near Fort Collins, in 2012 <a href="http://dbouwman.github.com/geomacmapper/#map/-105.3/40.65/10/2012">http://dbouwman.github.com/geomacmapper/#map/-105.3/40.65/10/2012</a></p>
+<p>Border 127 fire near San Diego in 2007 <a href="http://dbouwman.github.com/geomacmapper/#map/-116.82/32.69/11/2007">http://dbouwman.github.com/geomacmapper/#map/-116.82/32.69/11/2007</a></p>
+<h2>To Production&#8230;</h2>
+<p>At this point we have a non-trivial application, but we are a ways from &#8220;production&#8221; yet. This needs to be tested on non-webkit browsers, particularly Internet Explorer. Theoretically it should work &#8220;ok&#8221; in IE9 &amp; 10, but below that, who knows. We would also want to combine and minify the css and javascript. When using a backend like Rails, ASP.NET MVC, or Node (+Express), this work is part of what you get from using the framework. However, for a completely static app like this one, we would need to add a formal build step to do this. From the little research I&#8217;ve done on this, it sounds like <a href="http://gruntjs.com/">gruntjs</a> and it&#8217;s <a href="https://github.com/gruntjs/grunt-contrib-uglify">uglify plug-in </a> is the tooling de jour for this task.</p>
+<h2>A Word about Collections</h2>
+<p>In looking back over this series, one thing that I did not cover was working with Backbone collections &#8211; specifically how they work with GET/PUT/POST/DELETE HTTP services. Since we did not have such a service, it was going to be a hack to work it into the mix, but if you are interested, here are some links to posts which cover this.</p>
+<p><a href="http://liquidmedia.org/blog/2011/01/backbone-js-part-1/">http://liquidmedia.org/blog/2011/01/backbone-js-part-1/</a></p>
+<p><a href="http://coenraets.org/blog/2011/12/backbone-js-wine-cellar-tutorial-part-1-getting-started/">http://coenraets.org/blog/2011/12/backbone-js-wine-cellar-tutorial-part-1-getting-started/</a></p>
+<h2>Lessons Learned</h2>
+<p>I learned a couple conceptual level things along the way which I&#8217;ll be sure to plan for moving forward. Here they are in no particular order&#8230;</p>
+<h3>Make a List of Events</h3>
+<p>This app is right at the edge of something that you can keep in your head easily. Moving forward, I&#8217;ll be keeping a list of the events and a description of what they are supposed to do in the project.</p>
+<h3>Plan your Routes</h3>
+<p>Plan ahead for how you are going to handle the router, and holding the context of the map in the url. When I first added the router, I just stored the center of the map and the zoom level, which was easy to tie into things as the map is all cleanly separated, and it&#8217;s easy to raise events from the map and use that to update the url. Adding in the &#8220;Year&#8221; was troublesome in that the value of the year is set as a result of selecting a historical year to view. Ok, not too bad for updating the url via Router.navigate, but parsing out the values and correctly restoring the map state was more complex than I&#8217;d have liked.</p>
+<h3>Data Consistency</h3>
+<p>This also came up at the end. I had planned to show another &#8220;window&#8221; with details about a wildfire, which would be relatively simple &#8211; EXCEPT &#8211; the attributes for the <a href="http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer/0">current fires layer</a> are DIFFERENT from those on the <a href="http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer/7">historical</a> <a href="http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer/8">fire</a> <a href="http://wildfire.cr.usgs.gov/ArcGIS/rest/services/geomac_dyn/MapServer/9">layers</a>, which borked things up royally as all the rest of the code assumes that all the wildfire layers are the same. This certainly could be worked around, but since no one is paying for this app, I let it ride with a mouse-over that shows the fire name. I have some ideas about how to harvest all the data into a consistent format, hosted on ArcGIS Server 10.1 and then use some of the new Stats options to show interesting info about the data, but that will have to wait for a while.</p>
+<h2>Code</h2>
+<p>The code for this drop is in geomacmapper-0.0.6</p>
+<p> </p>
+					</div><!-- .entry-content -->
+								
+
+<h3>With thanks to Dave Bouwman for Geomacmapper</h3>
+	</body>
+</html>
