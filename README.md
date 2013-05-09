@@ -1,5 +1,5 @@
 
-![]()
+![](https://raw.github.com/addyosmani/workshop-fowd-2013/master/poster/small.jpg)
 
 For FOWD London, 2013.
 
