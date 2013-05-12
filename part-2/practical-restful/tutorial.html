@@ -1,0 +1,726 @@
+<html>
+    <head>
+        <title>Tutorial</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+
+ <h1>RESTFul Backbone.js Application Tutorial</h1> 
+<p>In this exercise we will build a library application for managing digital books using Backbone. For each book we will store the title, author, date of release, and some keywords. We'll also show a picture of the cover.</p>
+<h2 id="setting-up"><a href="#TOC">Setting up</a></h2>
+<p>First we need to create a folder structure for our project. To keep the front-end and back-end separate, we will create a folder called <em>site</em> for our client in the project root. Within it we will create css, img, and js directories.</p>
+<p>As with the last example we will split our JavaScript files by their function, so under the js directory create folders named lib, models, collections, and views. Your directory hierarchy should look like this:</p>
+<pre><code>site/
+    css/
+    img/
+    js/
+        collections/
+        lib/
+        models/
+        views/</code></pre>
+<p>Download the Backbone, Underscore, and jQuery libraries and copy them to your js/lib folder. We need a placeholder image for the book covers. Save this image to your site/img folder:</p>
+<figure>
+<img src="img/placeholder.png"><figcaption></figcaption>
+</figure>
+<p>Just like before we need to load all of our dependencies in the site/index.html file:</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="dt">&lt;!DOCTYPE </span>html<span class="dt">&gt;</span>
+<span class="kw">&lt;html</span><span class="ot"> lang=</span><span class="st">"en"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;head&gt;</span>
+        <span class="kw">&lt;meta</span><span class="ot"> charset=</span><span class="st">"UTF-8"</span><span class="kw">/&gt;</span>
+        <span class="kw">&lt;title&gt;</span>Backbone.js Library<span class="kw">&lt;/title&gt;</span>
+        <span class="kw">&lt;link</span><span class="ot"> rel=</span><span class="st">"stylesheet"</span><span class="ot"> href=</span><span class="st">"css/screen.css"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;/head&gt;</span>
+    <span class="kw">&lt;body&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/lib/jquery.min.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/lib/underscore-min.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/lib/backbone-min.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/models/book.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/collections/library.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/views/book.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/views/library.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/app.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+    <span class="kw">&lt;/body&gt;</span>
+<span class="kw">&lt;/html&gt;</span></code></pre>
+<p>We should also add in the HTML for the user interface. We'll want a form for adding a new book so add the following immediately inside the <code>body</code> element:</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">"books"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;form</span><span class="ot"> id=</span><span class="st">"addBook"</span><span class="ot"> action=</span><span class="st">"#"</span><span class="kw">&gt;</span>
+        <span class="kw">&lt;div&gt;</span>
+            <span class="kw">&lt;label</span><span class="ot"> for=</span><span class="st">"coverImage"</span><span class="kw">&gt;</span>CoverImage: <span class="kw">&lt;/label&gt;&lt;input</span><span class="ot"> id=</span><span class="st">"coverImage"</span><span class="ot"> type=</span><span class="st">"file"</span> <span class="kw">/&gt;</span>
+            <span class="kw">&lt;label</span><span class="ot"> for=</span><span class="st">"title"</span><span class="kw">&gt;</span>Title: <span class="kw">&lt;/label&gt;&lt;input</span><span class="ot"> id=</span><span class="st">"title"</span><span class="ot"> type=</span><span class="st">"text"</span> <span class="kw">/&gt;</span>
+            <span class="kw">&lt;label</span><span class="ot"> for=</span><span class="st">"author"</span><span class="kw">&gt;</span>Author: <span class="kw">&lt;/label&gt;&lt;input</span><span class="ot"> id=</span><span class="st">"author"</span><span class="ot"> type=</span><span class="st">"text"</span> <span class="kw">/&gt;</span>
+            <span class="kw">&lt;label</span><span class="ot"> for=</span><span class="st">"releaseDate"</span><span class="kw">&gt;</span>Release date: <span class="kw">&lt;/label&gt;&lt;input</span><span class="ot"> id=</span><span class="st">"releaseDate"</span><span class="ot"> type=</span><span class="st">"text"</span> <span class="kw">/&gt;</span>
+            <span class="kw">&lt;label</span><span class="ot"> for=</span><span class="st">"keywords"</span><span class="kw">&gt;</span>Keywords: <span class="kw">&lt;/label&gt;&lt;input</span><span class="ot"> id=</span><span class="st">"keywords"</span><span class="ot"> type=</span><span class="st">"text"</span> <span class="kw">/&gt;</span>
+            <span class="kw">&lt;button</span><span class="ot"> id=</span><span class="st">"add"</span><span class="kw">&gt;</span>Add<span class="kw">&lt;/button&gt;</span>
+        <span class="kw">&lt;/div&gt;</span>
+    <span class="kw">&lt;/form&gt;</span>
+<span class="kw">&lt;/div&gt;</span></code></pre>
+<p>and we'll need a template for displaying each book which should be placed before the <code>script</code> tags:</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;script</span><span class="ot"> id=</span><span class="st">"bookTemplate"</span><span class="ot"> type=</span><span class="st">"text/template"</span><span class="kw">&gt;</span>
+    &lt;img src=<span class="st">"</span>&lt;%= <span class="st">coverImage</span> %&gt;<span class="st">"</span>/&gt;
+    &lt;ul&gt;
+        &lt;li&gt;&lt;%= title %&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;%= author %&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;%= releaseDate %&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;%= keywords %&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;button class=<span class="st">"delete"</span>&gt;Delete&lt;/button&gt;
+<span class="kw">&lt;/script&gt;</span></code></pre>
+<p>To see what this will look like with some data in it, go ahead and add a manually filled-in book to the <em>books</em> div.</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;div</span><span class="ot"> class=</span><span class="st">"bookContainer"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;img</span><span class="ot"> src=</span><span class="st">"img/placeholder.png"</span><span class="kw">/&gt;</span>
+    <span class="kw">&lt;ul&gt;</span>
+        <span class="kw">&lt;li&gt;</span>Title<span class="kw">&lt;/li&gt;</span>
+        <span class="kw">&lt;li&gt;</span>Author<span class="kw">&lt;/li&gt;</span>
+        <span class="kw">&lt;li&gt;</span>Release Date<span class="kw">&lt;/li&gt;</span>
+        <span class="kw">&lt;li&gt;</span>Keywords<span class="kw">&lt;/li&gt;</span>
+    <span class="kw">&lt;/ul&gt;</span>
+
+    <span class="kw">&lt;button</span><span class="ot"> class=</span><span class="st">"delete"</span><span class="kw">&gt;</span>Delete<span class="kw">&lt;/button&gt;</span>
+<span class="kw">&lt;/div&gt;</span></code></pre>
+<p>Open this file in a browser and it should look something like this:</p>
+<figure>
+<img src="img/chapter5-1.png"><figcaption></figcaption>
+</figure>
+<p>Not so great. This is not a CSS tutorial, but we still need to do some formatting. Create a file named screen.css in your site/css folder:</p>
+<pre class="sourceCode css"><code class="sourceCode css">body <span class="kw">{</span>
+    <span class="kw">background-color:</span> <span class="dt">#eee</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">.bookContainer</span> <span class="kw">{</span>
+    <span class="kw">outline:</span> <span class="dt">1px</span> <span class="dt">solid</span> <span class="dt">#aaa</span><span class="kw">;</span>
+    <span class="kw">width:</span> <span class="dt">350px</span><span class="kw">;</span>
+    <span class="kw">height:</span> <span class="dt">130px</span><span class="kw">;</span>
+    <span class="kw">background-color:</span> <span class="dt">#fff</span><span class="kw">;</span>
+    <span class="kw">float:</span> <span class="dt">left</span><span class="kw">;</span>
+    <span class="kw">margin:</span> <span class="dt">5px</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">.bookContainer</span> img <span class="kw">{</span>
+    <span class="kw">float:</span> <span class="dt">left</span><span class="kw">;</span>
+    <span class="kw">margin:</span> <span class="dt">10px</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">.bookContainer</span> ul <span class="kw">{</span>
+    <span class="kw">list-style-type:</span> <span class="dt">none</span><span class="kw">;</span>
+    <span class="kw">margin-bottom:</span> <span class="dt">0</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">.bookContainer</span> button <span class="kw">{</span>
+    <span class="kw">float:</span> <span class="dt">right</span><span class="kw">;</span>
+    <span class="kw">margin:</span> <span class="dt">10px</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">#addBook</span> label <span class="kw">{</span>
+    <span class="kw">width:</span> <span class="dt">100px</span><span class="kw">;</span>
+    <span class="kw">margin-right:</span> <span class="dt">10px</span><span class="kw">;</span>
+    <span class="kw">text-align:</span> <span class="dt">right</span><span class="kw">;</span>
+    <span class="kw">line-height:</span> <span class="dt">25px</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">#addBook</span> label, <span class="fl">#addBook</span> input <span class="kw">{</span>
+    <span class="kw">display:</span> <span class="dt">block</span><span class="kw">;</span>
+    <span class="kw">margin-bottom:</span> <span class="dt">10px</span><span class="kw">;</span>
+    <span class="kw">float:</span> <span class="dt">left</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">#addBook</span> label<span class="ch">[for=</span><span class="st">"title"</span><span class="ch">]</span>, <span class="fl">#addBook</span> label<span class="ch">[for=</span><span class="st">"releaseDate"</span><span class="ch">]</span> <span class="kw">{</span>
+    <span class="kw">clear:</span> <span class="dt">both</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">#addBook</span> button <span class="kw">{</span>
+    <span class="kw">display:</span> <span class="dt">block</span><span class="kw">;</span>
+    <span class="kw">margin:</span> <span class="dt">5px</span> <span class="dt">20px</span> <span class="dt">10px</span> <span class="dt">10px</span><span class="kw">;</span>
+    <span class="kw">float:</span> <span class="dt">right</span><span class="kw">;</span>
+    <span class="kw">clear:</span> <span class="dt">both</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">#addBook</span> div <span class="kw">{</span>
+    <span class="kw">width:</span> <span class="dt">550px</span><span class="kw">;</span>
+<span class="kw">}</span>
+
+<span class="fl">#addBook</span> div<span class="dv">:after</span> <span class="kw">{</span>
+    <span class="kw">content:</span> <span class="st">""</span><span class="kw">;</span>
+    <span class="kw">display:</span> <span class="dt">block</span><span class="kw">;</span>
+    <span class="kw">height:</span> <span class="dt">0</span><span class="kw">;</span>
+    <span class="kw">visibility:</span> <span class="dt">hidden</span><span class="kw">;</span>
+    <span class="kw">clear:</span> <span class="dt">both</span><span class="kw">;</span>
+    <span class="kw">font-size:</span> <span class="dt">0</span><span class="kw">;</span>
+    <span class="kw">line-height:</span> <span class="dt">0</span><span class="kw">;</span>
+<span class="kw">}</span></code></pre>
+<p>Now it looks a bit better:</p>
+<figure>
+<img src="img/chapter5-2.png"><figcaption></figcaption>
+</figure>
+<p>So this is what we want the final result to look like, but with more books. Go ahead and copy the bookContainer div a few more times if you would like to see what it looks like. Now we are ready to start developing the actual application.</p>
+<h4 id="creating-the-model-collection-views-and-app"><a href="#TOC">Creating the Model, Collection, Views, and App</a></h4>
+<p>First, we'll need a model of a book and a collection to hold the list. These are both very simple, with the model only declaring some defaults:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// site/js/models/book.js</span>
+
+<span class="kw">var</span> app = app || {};
+
+<span class="kw">app</span>.<span class="fu">Book</span> = <span class="kw">Backbone.Model</span>.<span class="fu">extend</span>({
+    <span class="dt">defaults</span>: {
+        <span class="dt">coverImage</span>: <span class="ch">'img/placeholder.png'</span>,
+        <span class="dt">title</span>: <span class="ch">'No title'</span>,
+        <span class="dt">author</span>: <span class="ch">'Unknown'</span>,
+        <span class="dt">releaseDate</span>: <span class="ch">'Unknown'</span>,
+        <span class="dt">keywords</span>: <span class="ch">'None'</span>
+    }
+});</code></pre>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// site/js/collections/library.js</span>
+
+<span class="kw">var</span> app = app || {};
+
+<span class="kw">app</span>.<span class="fu">Library</span> = <span class="kw">Backbone.Collection</span>.<span class="fu">extend</span>({
+    <span class="dt">model</span>: <span class="kw">app</span>.<span class="fu">Book</span>
+});</code></pre>
+<p>Next, in order to display books we'll need a view:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// site/js/views/book.js</span>
+
+<span class="kw">var</span> app = app || {};
+
+<span class="kw">app</span>.<span class="fu">BookView</span> = <span class="kw">Backbone.View</span>.<span class="fu">extend</span>({
+    <span class="dt">tagName</span>: <span class="ch">'div'</span>,
+    <span class="dt">className</span>: <span class="ch">'bookContainer'</span>,
+    <span class="dt">template</span>: <span class="kw">_</span>.<span class="fu">template</span>( $( <span class="ch">'#bookTemplate'</span> ).<span class="fu">html</span>() ),
+
+    <span class="dt">render</span>: <span class="kw">function</span>() {
+        <span class="co">//this.el is what we defined in tagName. use $el to get access to jQuery html() function</span>
+        <span class="kw">this</span>.$<span class="fu">el</span>.<span class="fu">html</span>( <span class="kw">this</span>.<span class="fu">template</span>( <span class="kw">this</span>.<span class="fu">model</span>.<span class="fu">toJSON</span>() ) );
+
+        <span class="kw">return</span> <span class="kw">this</span>;
+    }
+});</code></pre>
+<p>We'll also need a view for the list itself:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// site/js/views/library.js</span>
+
+<span class="kw">var</span> app = app || {};
+
+<span class="kw">app</span>.<span class="fu">LibraryView</span> = <span class="kw">Backbone.View</span>.<span class="fu">extend</span>({
+    <span class="dt">el</span>: <span class="ch">'#books'</span>,
+
+    <span class="dt">initialize</span>: <span class="kw">function</span>( initialBooks ) {
+        <span class="kw">this</span>.<span class="fu">collection</span> = <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">Library</span>( initialBooks );
+        <span class="kw">this</span>.<span class="fu">render</span>();
+    },
+
+    <span class="co">// render library by rendering each book in its collection</span>
+    <span class="dt">render</span>: <span class="kw">function</span>() {
+        <span class="kw">this</span>.<span class="fu">collection</span>.<span class="fu">each</span>(<span class="kw">function</span>( item ) {
+            <span class="kw">this</span>.<span class="fu">renderBook</span>( item );
+        }, <span class="kw">this</span> );
+    },
+
+    <span class="co">// render a book by creating a BookView and appending the</span>
+    <span class="co">// element it renders to the library's element</span>
+    <span class="dt">renderBook</span>: <span class="kw">function</span>( item ) {
+        <span class="kw">var</span> bookView = <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">BookView</span>({
+            <span class="dt">model</span>: item
+        });
+        <span class="kw">this</span>.$<span class="fu">el</span>.<span class="fu">append</span>( <span class="kw">bookView</span>.<span class="fu">render</span>().<span class="fu">el</span> );
+    }
+});</code></pre>
+<p>Note that in the initialize function we accept an array of data that we pass to the app.Library constructor. We'll use this to populate our collection with some sample data so that we can see everything is working correctly. Finally, we have the entry point for our code, along with the sample data:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// site/js/app.js</span>
+
+<span class="kw">var</span> app = app || {};
+
+$(<span class="kw">function</span>() {
+    <span class="kw">var</span> books = [
+        { <span class="dt">title</span>: <span class="ch">'JavaScript: The Good Parts'</span>, <span class="dt">author</span>: <span class="ch">'Douglas Crockford'</span>, <span class="dt">releaseDate</span>: <span class="ch">'2008'</span>, <span class="dt">keywords</span>: <span class="ch">'JavaScript Programming'</span> },
+        { <span class="dt">title</span>: <span class="ch">'The Little Book on CoffeeScript'</span>, <span class="dt">author</span>: <span class="ch">'Alex MacCaw'</span>, <span class="dt">releaseDate</span>: <span class="ch">'2012'</span>, <span class="dt">keywords</span>: <span class="ch">'CoffeeScript Programming'</span> },
+        { <span class="dt">title</span>: <span class="ch">'Scala for the Impatient'</span>, <span class="dt">author</span>: <span class="ch">'Cay S. Horstmann'</span>, <span class="dt">releaseDate</span>: <span class="ch">'2012'</span>, <span class="dt">keywords</span>: <span class="ch">'Scala Programming'</span> },
+        { <span class="dt">title</span>: <span class="ch">'American Psycho'</span>, <span class="dt">author</span>: <span class="ch">'Bret Easton Ellis'</span>, <span class="dt">releaseDate</span>: <span class="ch">'1991'</span>, <span class="dt">keywords</span>: <span class="ch">'Novel Splatter'</span> },
+        { <span class="dt">title</span>: <span class="ch">'Eloquent JavaScript'</span>, <span class="dt">author</span>: <span class="ch">'Marijn Haverbeke'</span>, <span class="dt">releaseDate</span>: <span class="ch">'2011'</span>, <span class="dt">keywords</span>: <span class="ch">'JavaScript Programming'</span> }
+    ];
+
+    <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">LibraryView</span>( books );
+});</code></pre>
+<p>Our app just passes the sample data to a new instance of app.LibraryView that it creates. Since the <code>initialize()</code> constructor in LibraryView invokes the view's <code>render()</code> method, all the books in the library will be displayed. Since we are passing our entry point as a callback to jQuery (in the form of its $ alias), the function will execute when the DOM is ready.</p>
+<p>If you view index.html in a browser you should see something like this:</p>
+<figure>
+<img src="img/chapter5-3.png"><figcaption></figcaption>
+</figure>
+<p>This is a complete Backbone application, though it doesn't yet do anything interesting.</p>
+<h2 id="wiring-in-the-interface"><a href="#TOC">Wiring in the interface</a></h2>
+<p>Now we'll add some functionality to the useless form at the top and the delete buttons on each book.</p>
+<h3 id="adding-models"><a href="#TOC">Adding models</a></h3>
+<p>When the user clicks the add button we want to take the data in the form and use it to create a new model. In the LibraryView we need to add an event handler for the click event:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="dt">events</span>:{
+    <span class="ch">'click #add'</span>:<span class="ch">'addBook'</span>
+},
+
+<span class="dt">addBook</span>: <span class="kw">function</span>( e ) {
+    <span class="kw">e</span>.<span class="fu">preventDefault</span>();
+
+    <span class="kw">var</span> formData = {};
+
+    $( <span class="ch">'#addBook div'</span> ).<span class="fu">children</span>( <span class="ch">'input'</span> ).<span class="fu">each</span>( <span class="kw">function</span>( i, el ) {
+        <span class="kw">if</span>( $( el ).<span class="fu">val</span>() != <span class="ch">''</span> )
+        {
+            formData[ <span class="kw">el</span>.<span class="fu">id</span> ] = $( el ).<span class="fu">val</span>();
+        }
+    });
+
+    <span class="kw">this</span>.<span class="fu">collection</span>.<span class="fu">add</span>( <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">Book</span>( formData ) );
+},</code></pre>
+<p>We select all the input elements of the form that have a value and iterate over them using jQuery's each. Since we used the same names for ids in our form as the keys on our Book model we can simply store them directly in the formData object. We then create a new Book from the data and add it to the collection. We skip fields without a value so that the defaults will be applied.</p>
+<p>Backbone passes an event object as a parameter to the event-handling function. This is useful for us in this case since we don't want the form to actually submit and reload the page. Adding a call to <code>preventDefault</code> on the event in the <code>addBook</code> function takes care of this for us.</p>
+<p>Now we just need to make the view render again when a new model is added. To do this, we put</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">this</span>.<span class="fu">listenTo</span>( <span class="kw">this</span>.<span class="fu">collection</span>, <span class="ch">'add'</span>, <span class="kw">this</span>.<span class="fu">renderBook</span> );</code></pre>
+<p>in the initialize function of LibraryView.</p>
+<p>Now you should be ready to take the application for a spin.</p>
+<figure>
+<img src="img/chapter5-4.png"><figcaption></figcaption>
+</figure>
+<p>You may notice that the file input for the cover image isn't working, but that is left as an exercise to the reader.</p>
+<h3 id="removing-models"><a href="#TOC">Removing models</a></h3>
+<p>Next, we need to wire up the delete button. Set up the event handler in the BookView:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">    <span class="dt">events</span>: {
+        <span class="ch">'click .delete'</span>: <span class="ch">'deleteBook'</span>
+    },
+
+    <span class="dt">deleteBook</span>: <span class="kw">function</span>() {
+        <span class="co">//Delete model</span>
+        <span class="kw">this</span>.<span class="fu">model</span>.<span class="fu">destroy</span>();
+
+        <span class="co">//Delete view</span>
+        <span class="kw">this</span>.<span class="fu">remove</span>();
+    },</code></pre>
+<p>You should now be able to add and remove books from the library.</p>
+<h2 id="creating-the-back-end"><a href="#TOC">Creating the back-end</a></h2>
+<p>Now we need to make a small detour and set up a server with a REST api. Since this is a JavaScript book we will use JavaScript to create the server using node.js. If you are more comfortable in setting up a REST server in another language, this is the API you need to conform to:</p>
+<pre><code>url             HTTP Method  Operation
+/api/books      GET          Get an array of all books
+/api/books/:id  GET          Get the book with id of :id
+/api/books      POST         Add a new book and return the book with an id attribute added
+/api/books/:id  PUT          Update the book with id of :id
+/api/books/:id  DELETE       Delete the book with id of :id</code></pre>
+<p>The outline for this section looks like this:</p>
+<ul>
+<li>Install node.js, npm, and MongoDB</li>
+<li>Install node modules</li>
+<li>Create a simple web server</li>
+<li>Connect to the database</li>
+<li>Create the REST API</li>
+</ul>
+<h3 id="install-node.js-npm-and-mongodb"><a href="#TOC">Install node.js, npm, and MongoDB</a></h3>
+<p>Download and install node.js from nodejs.org. The node package manager (npm) will be installed as well.</p>
+<p>Download and install MongoDB from mongodb.org. There are detailed installation guides <a href="http://docs.mongodb.org/manual/installation/">on the website</a>.</p>
+<h3 id="install-node-modules"><a href="#TOC">Install node modules</a></h3>
+<p>Create a file called <code>package.json</code> in the root of your project. It should look like</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">{
+    <span class="st">"name"</span>: <span class="st">"backbone-library"</span>,
+    <span class="st">"version"</span>: <span class="st">"0.0.1"</span>,
+    <span class="st">"description"</span>: <span class="st">"A simple library application using Backbone"</span>,
+    <span class="st">"dependencies"</span>: {
+        <span class="st">"express"</span>: <span class="st">"~3.1.0"</span>,
+        <span class="st">"path"</span>: <span class="st">"~0.4.9"</span>,
+        <span class="st">"mongoose"</span>: <span class="st">"~3.5.5"</span>
+    }
+}</code></pre>
+<p>Amongst other things, this file tells npm what the dependencies are for our project. On the command line, from the root of your project, type:</p>
+<pre class="sh"><code>npm install</code></pre>
+<p>You should see npm fetch the dependencies that we listed in our package.json and save them within a folder called node_modules.</p>
+<p>Your folder structure should look something like this:</p>
+<pre><code>node_modules/
+  .bin/
+  express/
+  mongoose/
+  path/
+site/
+  css/
+  img/
+  js/
+  index.html
+package.json</code></pre>
+<h3 id="create-a-simple-web-server"><a href="#TOC">Create a simple web server</a></h3>
+<p>Create a file named server.js in the project root containing the following code:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// Module dependencies.</span>
+<span class="kw">var</span> application_root = __dirname,
+    express = require( <span class="ch">'express'</span> ), <span class="co">//Web framework</span>
+    path = require( <span class="ch">'path'</span> ), <span class="co">//Utilities for dealing with file paths</span>
+    mongoose = require( <span class="ch">'mongoose'</span> ); <span class="co">//MongoDB integration</span>
+
+<span class="co">//Create server</span>
+<span class="kw">var</span> app = express();
+
+<span class="co">// Configure server</span>
+<span class="kw">app</span>.<span class="fu">configure</span>( <span class="kw">function</span>() {
+    <span class="co">//parses request body and populates request.body</span>
+    <span class="kw">app</span>.<span class="fu">use</span>( <span class="kw">express</span>.<span class="fu">bodyParser</span>() );
+
+    <span class="co">//checks request.body for HTTP method overrides</span>
+    <span class="kw">app</span>.<span class="fu">use</span>( <span class="kw">express</span>.<span class="fu">methodOverride</span>() );
+
+    <span class="co">//perform route lookup based on url and HTTP method</span>
+    <span class="kw">app</span>.<span class="fu">use</span>( <span class="kw">app</span>.<span class="fu">router</span> );
+
+    <span class="co">//Where to serve static content</span>
+    <span class="kw">app</span>.<span class="fu">use</span>( <span class="kw">express</span>.<span class="fu">static</span>( <span class="kw">path</span>.<span class="fu">join</span>( application_root, <span class="ch">'site'</span>) ) );
+
+    <span class="co">//Show all errors in development</span>
+    <span class="kw">app</span>.<span class="fu">use</span>( <span class="kw">express</span>.<span class="fu">errorHandler</span>({ <span class="dt">dumpExceptions</span>: <span class="kw">true</span>, <span class="dt">showStack</span>: <span class="kw">true</span> }));
+});
+
+<span class="co">//Start server</span>
+<span class="kw">var</span> port = <span class="dv">4711</span>;
+<span class="kw">app</span>.<span class="fu">listen</span>( port, <span class="kw">function</span>() {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Express server listening on port %d in %s mode'</span>, port, <span class="kw">app.settings</span>.<span class="fu">env</span> );
+});</code></pre>
+<p>We start off by loading the modules required for this project: Express for creating the HTTP server, Path for dealing with file paths, and mongoose for connecting with the database. We then create an Express server and configure it using an anonymous function. This is a pretty standard configuration and for our application we don't actually need the methodOverride part. It is used for issuing PUT and DELETE HTTP requests directly from a form, since forms normally only support GET and POST. Finally, we start the server by running the listen function. The port number used, in this case 4711, could be any free port on your system. I simply used 4711 since it is unlikely to have been used by anything else. We are now ready to run our first server:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">node <span class="kw">server</span>.<span class="fu">js</span></code></pre>
+<p>If you open a browser on http://localhost:4711 you should see something like this:</p>
+<figure>
+<img src="img/chapter5-5.png"><figcaption></figcaption>
+</figure>
+<p>This is where we left off in Part 2, but we are now running on a server instead of directly from the files. Great job! We can now start defining routes (URLs) that the server should react to. This will be our REST API. Routes are defined by using app followed by one of the HTTP verbs get, put, post, and delete, which corresponds to Create, Read, Update and Delete. Let us go back to server.js and define a simple route:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// Routes</span>
+<span class="kw">app</span>.<span class="fu">get</span>( <span class="ch">'/api'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">response</span>.<span class="fu">send</span>( <span class="ch">'Library API is running'</span> );
+});</code></pre>
+<p>The get function takes a URL as the first parameter and a function as the second. The function will be called with request and response objects. Now you can restart node and go to our specified URL:</p>
+<figure>
+<img src="img/chapter5-6.png"><figcaption></figcaption>
+</figure>
+<h3 id="connect-to-the-database"><a href="#TOC">Connect to the database</a></h3>
+<p>Fantastic. Now, since we want to store our data in MongoDB, we need to define a schema. Add this to server.js:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Connect to database</span>
+<span class="kw">mongoose</span>.<span class="fu">connect</span>( <span class="ch">'mongodb://localhost/library_database'</span> );
+
+<span class="co">//Schemas</span>
+<span class="kw">var</span> Book = <span class="kw">new</span> <span class="kw">mongoose</span>.<span class="fu">Schema</span>({
+    <span class="dt">title</span>: <span class="kw">String</span>,
+    <span class="dt">author</span>: <span class="kw">String</span>,
+    <span class="dt">releaseDate</span>: <span class="kw">Date</span>
+});
+
+<span class="co">//Models</span>
+<span class="kw">var</span> BookModel = <span class="kw">mongoose</span>.<span class="fu">model</span>( <span class="ch">'Book'</span>, Book );</code></pre>
+<p>As you can see, schema definitions are quite straight forward. They can be more advanced, but this will do for us. I also extracted a model (BookModel) from Mongo. This is what we will be working with. Next up, we define a GET operation for the REST API that will return all books:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Get a list of all books</span>
+<span class="kw">app</span>.<span class="fu">get</span>( <span class="ch">'/api/books'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">return</span> <span class="kw">BookModel</span>.<span class="fu">find</span>( <span class="kw">function</span>( err, books ) {
+        <span class="kw">if</span>( !err ) {
+            <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( books );
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> <span class="kw">console</span>.<span class="fu">log</span>( err );
+        }
+    });
+});</code></pre>
+<p>The find function of Model is defined like this: <code>function find (conditions, fields, options, callback)</code> – but since we want a function that returns all books we only need the callback parameter. The callback will be called with an error object and an array of found objects. If there was no error we return the array of objects to the client using the <code>send</code> function of the response object, otherwise we log the error to the console.</p>
+<p>To test our API we need to do a little typing in a JavaScript console. Restart node and go to localhost:4711 in your browser. Open up the JavaScript console. If you are using Google Chrome, go to View-&gt;Developer-&gt;JavaScript Console. If you are using Firefox, install Firebug and go to View-&gt;Firebug. Most other browsers will have a similar console. In the console type the following:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">get</span>( <span class="ch">'/api/books/'</span>, <span class="kw">function</span>( data, textStatus, jqXHR ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Get response:'</span> );
+    <span class="kw">console</span>.<span class="fu">dir</span>( data );
+    <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+    <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+});</code></pre>
+<p>…and press enter and you should get something like this:</p>
+<figure>
+<img src="img/chapter5-7.png"><figcaption></figcaption>
+</figure>
+<p>Here I used jQuery to make the call to our REST API, since it was already loaded on the page. The returned array is obviously empty, since we have not put anything into the database yet. Let's go and create a POST route that enables adding new items in server.js:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Insert a new book</span>
+<span class="kw">app</span>.<span class="fu">post</span>( <span class="ch">'/api/books'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">var</span> book = <span class="kw">new</span> BookModel({
+        <span class="dt">title</span>: <span class="kw">request.body</span>.<span class="fu">title</span>,
+        <span class="dt">author</span>: <span class="kw">request.body</span>.<span class="fu">author</span>,
+        <span class="dt">releaseDate</span>: <span class="kw">request.body</span>.<span class="fu">releaseDate</span>
+    });
+    <span class="kw">book</span>.<span class="fu">save</span>( <span class="kw">function</span>( err ) {
+        <span class="kw">if</span>( !err ) {
+            <span class="kw">return</span> <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'created'</span> );
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> <span class="kw">console</span>.<span class="fu">log</span>( err );
+        }
+    });
+    <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( book );
+});</code></pre>
+<p>We start by creating a new BookModel, passing an object with title, author, and releaseDate attributes. The data are collected from request.body. This means that anyone calling this operation in the API needs to supply a JSON object containing the title, author, and releaseDate attributes. Actually, the caller can omit any or all attributes since we have not made any of them mandatory.</p>
+<p>We then call the save function on the BookModel passing in a callback in the same way as with the previous get route. Finally, we return the saved BookModel. The reason we return the BookModel and not just <q>success</q> or similar string is that when the BookModel is saved it will get an _id attribute from MongoDB, which the client needs when updating or deleting a specific book. Let's try it out again. Restart node and go back to the console and type:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">post</span>( <span class="ch">'/api/books'</span>, {
+    <span class="ch">'title'</span>: <span class="ch">'JavaScript the good parts'</span>,
+    <span class="ch">'author'</span>: <span class="ch">'Douglas Crockford'</span>,
+    <span class="ch">'releaseDate'</span>: <span class="kw">new</span> <span class="kw">Date</span>( <span class="dv">2008</span>, <span class="dv">4</span>, <span class="dv">1</span> ).<span class="fu">getTime</span>()
+}, <span class="kw">function</span>(data, textStatus, jqXHR) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Post response:'</span> );
+    <span class="kw">console</span>.<span class="fu">dir</span>( data );
+    <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+    <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+});</code></pre>
+<p>..and then</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">get</span>( <span class="ch">'/api/books/'</span>, <span class="kw">function</span>( data, textStatus, jqXHR ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Get response:'</span> );
+    <span class="kw">console</span>.<span class="fu">dir</span>( data );
+    <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+    <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+});</code></pre>
+<p>You should now get a one-element array back from our server. You may wonder about this line:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="ch">'releaseDate'</span>: <span class="kw">new</span> <span class="kw">Date</span>(<span class="dv">2008</span>, <span class="dv">4</span>, <span class="dv">1</span>).<span class="fu">getTime</span>()</code></pre>
+<p>MongoDB expects dates in UNIX time format (milliseconds from the start of Jan 1st 1970 UTC), so we have to convert dates before posting. The object we get back however, contains a JavaScript Date object. Also note the _id attribute of the returned object.</p>
+<figure>
+<img src="img/chapter5-8.png"><figcaption></figcaption>
+</figure>
+<p>Let's move on to creating a GET request that retrieves a single book in server.js:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Get a single book by id</span>
+<span class="kw">app</span>.<span class="fu">get</span>( <span class="ch">'/api/books/:id'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">return</span> <span class="kw">BookModel</span>.<span class="fu">findById</span>( <span class="kw">request.params</span>.<span class="fu">id</span>, <span class="kw">function</span>( err, book ) {
+        <span class="kw">if</span>( !err ) {
+            <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( book );
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> <span class="kw">console</span>.<span class="fu">log</span>( err );
+        }
+    });
+});</code></pre>
+<p>Here we use colon notation (:id) to tell Express that this part of the route is dynamic. We also use the <code>findById</code> function on BookModel to get a single result. If you restart node, you can get a single book by adding the id previously returned to the URL like this:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">get</span>( <span class="ch">'/api/books/4f95a8cb1baa9b8a1b000006'</span>, <span class="kw">function</span>( data, textStatus, jqXHR ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Get response:'</span> );
+    <span class="kw">console</span>.<span class="fu">dir</span>( data );
+    <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+    <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+});</code></pre>
+<p>Let's create the PUT (update) function next:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Update a book</span>
+<span class="kw">app</span>.<span class="fu">put</span>( <span class="ch">'/api/books/:id'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Updating book '</span> + <span class="kw">request.body</span>.<span class="fu">title</span> );
+    <span class="kw">return</span> <span class="kw">BookModel</span>.<span class="fu">findById</span>( <span class="kw">request.params</span>.<span class="fu">id</span>, <span class="kw">function</span>( err, book ) {
+        <span class="kw">book</span>.<span class="fu">title</span> = <span class="kw">request.body</span>.<span class="fu">title</span>;
+        <span class="kw">book</span>.<span class="fu">author</span> = <span class="kw">request.body</span>.<span class="fu">author</span>;
+        <span class="kw">book</span>.<span class="fu">releaseDate</span> = <span class="kw">request.body</span>.<span class="fu">releaseDate</span>;
+
+        <span class="kw">return</span> <span class="kw">book</span>.<span class="fu">save</span>( <span class="kw">function</span>( err ) {
+            <span class="kw">if</span>( !err ) {
+                <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'book updated'</span> );
+            } <span class="kw">else</span> {
+                <span class="kw">console</span>.<span class="fu">log</span>( err );
+            }
+            <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( book );
+        });
+    });
+});</code></pre>
+<p>This is a little larger than previous ones, but is also pretty straight forward – we find a book by id, update its properties, save it, and send it back to the client.</p>
+<p>To test this we need to use the more general jQuery ajax function. Again, in these examples you will need to replace the id property with one that matches an item in your own database:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">ajax</span>({
+    <span class="dt">url</span>: <span class="ch">'/api/books/4f95a8cb1baa9b8a1b000006'</span>,
+    <span class="dt">type</span>: <span class="ch">'PUT'</span>,
+    <span class="dt">data</span>: {
+        <span class="ch">'title'</span>: <span class="ch">'JavaScript The good parts'</span>,
+        <span class="ch">'author'</span>: <span class="ch">'The Legendary Douglas Crockford'</span>,
+        <span class="ch">'releaseDate'</span>: <span class="kw">new</span> <span class="kw">Date</span>( <span class="dv">2008</span>, <span class="dv">4</span>, <span class="dv">1</span> ).<span class="fu">getTime</span>()
+    },
+    <span class="dt">success</span>: <span class="kw">function</span>( data, textStatus, jqXHR ) {
+        <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Post response:'</span> );
+        <span class="kw">console</span>.<span class="fu">dir</span>( data );
+        <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+        <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+    }
+});</code></pre>
+<p>Finally we create the delete route:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Delete a book</span>
+<span class="kw">app</span>.<span class="fu">delete</span>( <span class="ch">'/api/books/:id'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Deleting book with id: '</span> + <span class="kw">request.params</span>.<span class="fu">id</span> );
+    <span class="kw">return</span> <span class="kw">BookModel</span>.<span class="fu">findById</span>( <span class="kw">request.params</span>.<span class="fu">id</span>, <span class="kw">function</span>( err, book ) {
+        <span class="kw">return</span> <span class="kw">book</span>.<span class="fu">remove</span>( <span class="kw">function</span>( err ) {
+            <span class="kw">if</span>( !err ) {
+                <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Book removed'</span> );
+                <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( <span class="ch">''</span> );
+            } <span class="kw">else</span> {
+                <span class="kw">console</span>.<span class="fu">log</span>( err );
+            }
+        });
+    });
+});</code></pre>
+<p>…and try it out:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">ajax</span>({
+    <span class="dt">url</span>: <span class="ch">'/api/books/4f95a5251baa9b8a1b000001'</span>,
+    <span class="dt">type</span>: <span class="ch">'DELETE'</span>,
+    <span class="dt">success</span>: <span class="kw">function</span>( data, textStatus, jqXHR ) {
+        <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Post response:'</span> );
+        <span class="kw">console</span>.<span class="fu">dir</span>( data );
+        <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+        <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+    }
+});</code></pre>
+<p>So now our REST API is complete – we have support for all four HTTP verbs. What's next? Well, until now I have left out the keywords part of our books. This is a bit more complicated since a book could have several keywords and we don't want to represent them as a string, but rather an array of strings. To do that we need another schema. Add a Keywords schema right above our Book schema:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Schemas</span>
+<span class="kw">var</span> Keywords = <span class="kw">new</span> <span class="kw">mongoose</span>.<span class="fu">Schema</span>({
+    <span class="dt">keyword</span>: <span class="kw">String</span>
+});</code></pre>
+<p>To add a sub schema to an existing schema we use brackets notation like so:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">var</span> Book = <span class="kw">new</span> <span class="kw">mongoose</span>.<span class="fu">Schema</span>({
+    <span class="dt">title</span>: <span class="kw">String</span>,
+    <span class="dt">author</span>: <span class="kw">String</span>,
+    <span class="dt">releaseDate</span>: <span class="kw">Date</span>,
+    <span class="dt">keywords</span>: [ Keywords ]                       <span class="co">// NEW</span>
+});</code></pre>
+<p>Also update POST and PUT:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">//Insert a new book</span>
+<span class="kw">app</span>.<span class="fu">post</span>( <span class="ch">'/api/books'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">var</span> book = <span class="kw">new</span> BookModel({
+        <span class="dt">title</span>: <span class="kw">request.body</span>.<span class="fu">title</span>,
+        <span class="dt">author</span>: <span class="kw">request.body</span>.<span class="fu">author</span>,
+        <span class="dt">releaseDate</span>: <span class="kw">request.body</span>.<span class="fu">releaseDate</span>,
+        <span class="dt">keywords</span>: <span class="kw">request.body</span>.<span class="fu">keywords</span>       <span class="co">// NEW</span>
+    });
+    <span class="kw">book</span>.<span class="fu">save</span>( <span class="kw">function</span>( err ) {
+        <span class="kw">if</span>( !err ) {
+            <span class="kw">return</span> <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'created'</span> );
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> <span class="kw">console</span>.<span class="fu">log</span>( err );
+        }
+    });
+    <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( book );
+});
+
+<span class="co">//Update a book</span>
+<span class="kw">app</span>.<span class="fu">put</span>( <span class="ch">'/api/books/:id'</span>, <span class="kw">function</span>( request, response ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Updating book '</span> + <span class="kw">request.body</span>.<span class="fu">title</span> );
+    <span class="kw">return</span> <span class="kw">BookModel</span>.<span class="fu">findById</span>( <span class="kw">request.params</span>.<span class="fu">id</span>, <span class="kw">function</span>( err, book ) {
+        <span class="kw">book</span>.<span class="fu">title</span> = <span class="kw">request.body</span>.<span class="fu">title</span>;
+        <span class="kw">book</span>.<span class="fu">author</span> = <span class="kw">request.body</span>.<span class="fu">author</span>;
+        <span class="kw">book</span>.<span class="fu">releaseDate</span> = <span class="kw">request.body</span>.<span class="fu">releaseDate</span>;
+        <span class="kw">book</span>.<span class="fu">keywords</span> = <span class="kw">request.body</span>.<span class="fu">keywords</span>; <span class="co">// NEW</span>
+
+        <span class="kw">return</span> <span class="kw">book</span>.<span class="fu">save</span>( <span class="kw">function</span>( err ) {
+            <span class="kw">if</span>( !err ) {
+                <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'book updated'</span> );
+            } <span class="kw">else</span> {
+                <span class="kw">console</span>.<span class="fu">log</span>( err );
+            }
+            <span class="kw">return</span> <span class="kw">response</span>.<span class="fu">send</span>( book );
+        });
+    });
+});</code></pre>
+<p>There we are, that should be all we need, now we can try it out in the console:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">jQuery</span>.<span class="fu">post</span>( <span class="ch">'/api/books'</span>, {
+    <span class="ch">'title'</span>: <span class="ch">'Secrets of the JavaScript Ninja'</span>,
+    <span class="ch">'author'</span>: <span class="ch">'John Resig'</span>,
+    <span class="ch">'releaseDate'</span>: <span class="kw">new</span> <span class="kw">Date</span>( <span class="dv">2008</span>, <span class="dv">3</span>, <span class="dv">12</span> ).<span class="fu">getTime</span>(),
+    <span class="ch">'keywords'</span>:[
+        { <span class="ch">'keyword'</span>: <span class="ch">'JavaScript'</span> },
+        { <span class="ch">'keyword'</span>: <span class="ch">'Reference'</span> }
+    ]
+}, <span class="kw">function</span>( data, textStatus, jqXHR ) {
+    <span class="kw">console</span>.<span class="fu">log</span>( <span class="ch">'Post response:'</span> );
+    <span class="kw">console</span>.<span class="fu">dir</span>( data );
+    <span class="kw">console</span>.<span class="fu">log</span>( textStatus );
+    <span class="kw">console</span>.<span class="fu">dir</span>( jqXHR );
+});</code></pre>
+<p>You now have a fully functional REST server that we can hook into from our front-end.</p>
+<h2 id="talking-to-the-server"><a href="#TOC">Talking to the server</a></h2>
+<p>In this part we will cover connecting our Backbone application to the server through the REST API.</p>
+<p>As we mentioned in chapter 3 <em>Backbone Basics</em>, we can retrieve models from a server using <code>collection.fetch()</code> by setting <code>collection.url</code> to be the URL of the API endpoint. Let's update the Library collection to do that now:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">var</span> app = app || {};
+
+<span class="kw">app</span>.<span class="fu">Library</span> = <span class="kw">Backbone.Collection</span>.<span class="fu">extend</span>({
+    <span class="dt">model</span>: <span class="kw">app</span>.<span class="fu">Book</span>,
+    <span class="dt">url</span>: <span class="ch">'/api/books'</span>     <span class="co">// NEW</span>
+});</code></pre>
+<p>This results in the default implementation of Backbone.sync assuming that the API looks like this:</p>
+<pre><code>url             HTTP Method  Operation
+/api/books      GET          Get an array of all books
+/api/books/:id  GET          Get the book with id of :id
+/api/books      POST         Add a new book and return the book with an id attribute added
+/api/books/:id  PUT          Update the book with id of :id
+/api/books/:id  DELETE       Delete the book with id of :id</code></pre>
+<p>To have our application retrieve the Book models from the server on page load we need to update the LibraryView. The Backbone documentation recommends inserting all models when the page is generated on the server side, rather than fetching them from the client side once the page is loaded. Since this chapter is trying to give you a more complete picture of how to communicate with a server, we will go ahead and ignore that recommendation. Go to the LibraryView declaration and update the initialize function as follows:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="dt">initialize</span>: <span class="kw">function</span>() {
+    <span class="kw">this</span>.<span class="fu">collection</span> = <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">Library</span>();
+    <span class="kw">this</span>.<span class="fu">collection</span>.<span class="fu">fetch</span>({<span class="dt">reset</span>: <span class="kw">true</span>}); <span class="co">// NEW</span>
+    <span class="kw">this</span>.<span class="fu">render</span>();
+
+    <span class="kw">this</span>.<span class="fu">listenTo</span>( <span class="kw">this</span>.<span class="fu">collection</span>, <span class="ch">'add'</span>, <span class="kw">this</span>.<span class="fu">renderBook</span> );
+    <span class="kw">this</span>.<span class="fu">listenTo</span>( <span class="kw">this</span>.<span class="fu">collection</span>, <span class="ch">'reset'</span>, <span class="kw">this</span>.<span class="fu">render</span> ); <span class="co">// NEW</span>
+},</code></pre>
+<p>Now that we are populating our Library from the database using <code>this.collection.fetch()</code>, the <code>initialize()</code> function no longer takes a set of sample data as an argument and doesn't pass anything to the app.Library constructor. You can now remove the sample data from site/js/app.js, which should reduce it to a single statement which creates the LibraryView:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// site/js/app.js</span>
+
+<span class="kw">var</span> app = app || {};
+
+$(<span class="kw">function</span>() {
+    <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">LibraryView</span>();
+});</code></pre>
+<p>We have also added a listener on the reset event. We need to do this since the models are fetched asynchronously after the page is rendered. When the fetch completes, Backbone fires the reset event, as requested by the <code>reset: true</code> option, and our listener re-renders the view. If you reload the page now you should see all books that are stored on the server:</p>
+<figure>
+<img src="img/chapter5-9.png"><figcaption></figcaption>
+</figure>
+<p>As you can see the date and keywords look a bit weird. The date delivered from the server is converted into a JavaScript Date object and when applied to the underscore template it will use the toString() function to display it. There isn't very good support for formatting dates in JavaScript so we will use the dateFormat jQuery plugin to fix this. Go ahead and download it from <a href="http://github.com/phstc/jquery-dateFormat">here</a> and put it in your site/js/lib folder. Update the book template so that the date is displayed with:</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;li&gt;</span><span class="er">&lt;</span>%= $.format.date( new Date( releaseDate ), 'MMMM yyyy' ) %&gt;<span class="kw">&lt;/li&gt;</span></code></pre>
+<p>and add a script element for the plugin</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/lib/jquery-dateFormat-1.0.js"</span><span class="kw">&gt;&lt;/script&gt;</span></code></pre>
+<p>Now the date on the page should look a bit better. How about the keywords? Since we are receiving the keywords in an array we need to execute some code that generates a string of separated keywords. To do that we can omit the equals character in the template tag which will let us execute code that doesn't display anything:</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;li&gt;</span><span class="er">&lt;</span>% _.each( keywords, function( keyobj ) {%&gt; <span class="er">&lt;</span>%= keyobj.keyword %&gt;<span class="er">&lt;</span>% } ); %&gt;<span class="kw">&lt;/li&gt;</span></code></pre>
+<p>Here I iterate over the keywords array using the Underscore <code>each</code> function and print out every single keyword. Note that I display the keyword using the &lt;%= tag. This will display the keywords with spaces between them.</p>
+<p>Reloading the page again should look quite decent:</p>
+<figure>
+<img src="img/chapter5-10.png"><figcaption></figcaption>
+</figure>
+<p>Now go ahead and delete a book and then reload the page: Tadaa! the deleted book is back! Not cool, why is this? This happens because when we get the BookModels from the server they have an _id attribute (notice the underscore), but Backbone expects an id attribute (no underscore). Since no id attribute is present, Backbone sees this model as new and deleting a new model doesn't need any synchronization.</p>
+<p>To fix this we can use the parse function of Backbone.Model. The parse function let's you edit the server response before it is passed to the Model constructor. Add a parse method to the Book model:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="dt">parse</span>: <span class="kw">function</span>( response ) {
+    <span class="kw">response</span>.<span class="fu">id</span> = <span class="kw">response</span>._<span class="fu">id</span>;
+    <span class="kw">return</span> response;
+}</code></pre>
+<p>Simply copy the value of _id to the needed id attribute. If you reload the page you will see that models are actually deleted on the server when you press the delete button.</p>
+<p>Another, simpler way of making Backbone recognize _id as its unique identifier is to set the idAttribute of the model to _id.</p>
+<p>If you now try to add a new book using the form you'll notice that it is a similar story to delete – models won't get persisted on the server. This is because Backbone.Collection.add doesn't automatically sync, but it is easy to fix. In the LibraryView we find in <code>views/library.js</code> change the line reading:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">this</span>.<span class="fu">collection</span>.<span class="fu">add</span>( <span class="kw">new</span> Book( formData ) );</code></pre>
+<p>…to:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">this</span>.<span class="fu">collection</span>.<span class="fu">create</span>( formData );</code></pre>
+<p>Now newly created books will get persisted. Actually, they probably won't if you enter a date. The server expects a date in UNIX timestamp format (milliseconds since Jan 1, 1970). Also, any keywords you enter won't be stored since the server expects an array of objects with the attribute <q>keyword</q>.</p>
+<p>We'll start by fixing the date issue. We don't really want the users to manually enter a date in a specific format, so we'll use the standard datepicker from jQuery UI. Go ahead and create a custom jQuery UI download containing datepicker from <a href="http://jqueryui.com/download/">here</a>. Add the css theme to site/css/ and the JavaScript to site/js/lib. Link to them in index.html:</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;link</span><span class="ot"> rel=</span><span class="st">"stylesheet"</span><span class="ot"> href=</span><span class="st">"css/cupertino/jquery-ui-1.10.0.custom.css"</span><span class="kw">&gt;</span></code></pre>
+<p><q>cupertino</q> is the name of the style I chose when downloading jQuery UI.</p>
+<p>The JavaScript file must be loaded after jQuery.</p>
+<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/lib/jquery.min.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">"js/lib/jquery-ui-1.10.0.custom.min.js"</span><span class="kw">&gt;&lt;/script&gt;</span></code></pre>
+<p>Now in app.js, bind a datepicker to our releaseDate field:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">var</span> app = app || {};
+
+$(<span class="kw">function</span>() {
+    $( <span class="ch">'#releaseDate'</span> ).<span class="fu">datepicker</span>();
+    <span class="kw">new</span> <span class="kw">app</span>.<span class="fu">LibraryView</span>();
+});</code></pre>
+<p>You should now be able to pick a date when clicking in the releaseDate field:</p>
+<figure>
+<img src="img/chapter5-11.png"><figcaption></figcaption>
+</figure>
+<p>Finally, we have to make sure that the form input is properly transformed into our storage format. Change the addBook function in LibraryView to:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="dt">addBook</span>: <span class="kw">function</span>( e ) {
+    <span class="kw">e</span>.<span class="fu">preventDefault</span>();
+
+    <span class="kw">var</span> formData = {};
+
+    $( <span class="ch">'#addBook div'</span> ).<span class="fu">children</span>( <span class="ch">'input'</span> ).<span class="fu">each</span>( <span class="kw">function</span>( i, el ) {
+        <span class="kw">if</span>( $( el ).<span class="fu">val</span>() != <span class="ch">''</span> )
+        {
+            <span class="kw">if</span>( <span class="kw">el</span>.<span class="fu">id</span> === <span class="ch">'keywords'</span> ) {
+                formData[ <span class="kw">el</span>.<span class="fu">id</span> ] = [];
+                <span class="kw">_</span>.<span class="fu">each</span>( $( el ).<span class="fu">val</span>().<span class="fu">split</span>( <span class="ch">' '</span> ), <span class="kw">function</span>( keyword ) {
+                    formData[ <span class="kw">el</span>.<span class="fu">id</span> ].<span class="fu">push</span>({ <span class="ch">'keyword'</span>: keyword });
+                });
+            } <span class="kw">else</span> <span class="kw">if</span>( <span class="kw">el</span>.<span class="fu">id</span> === <span class="ch">'releaseDate'</span> ) {
+                formData[ <span class="kw">el</span>.<span class="fu">id</span> ] = $( <span class="ch">'#releaseDate'</span> ).<span class="fu">datepicker</span>( <span class="ch">'getDate'</span> ).<span class="fu">getTime</span>();
+            } <span class="kw">else</span> {
+                formData[ <span class="kw">el</span>.<span class="fu">id</span> ] = $( el ).<span class="fu">val</span>();
+            }
+        }
+        <span class="co">// Clear input field value</span>
+        $( el ).<span class="fu">val</span>(<span class="ch">''</span>);
+    });
+
+    <span class="kw">this</span>.<span class="fu">collection</span>.<span class="fu">create</span>( formData );
+},</code></pre>
+<p>Our change adds two checks to the form input fields. First, we're checking if the current element is the keywords input field, in which case we're splitting the string on each space and creating an array of keyword objects.</p>
+<p>Then we're checking if the current element is the releaseDate input field, in which case we're calling <code>datePicker(“getDate”)</code> which returns a Date object. We then use the <code>getTime</code> function on that to get the time in milliseconds.</p>
+<p>Now you should be able to add new books with both a release date and keywords!</p>
+<figure>
+<img src="img/chapter5-12.png"><figcaption></figcaption>
+</figure>
+<h3 id="summary-3"><a href="#TOC">Summary</a></h3>
+<p>In this chapter we made our application persistent by binding it to a server using a REST API. We also looked at some problems that might occur when serializing and deserializing data and their solutions. We looked at the dateFormat and the datepicker jQuery plugins and how to do some more advanced things in our Underscore templates. The code is available <a href="exercise">here</a>.</p>
+    
+</body>
+</html>

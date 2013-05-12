@@ -1,0 +1,27 @@
+{
+    "node": true,
+    "browser": true,
+    "bitwise": true,
+    "forin": true,
+
+    "globalstrict": false,
+    "immed": true,
+
+    "strict": false,
+
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "nonew": true,
+    "sub": true,
+    "undef": true,
+    "boss": true,
+    "eqnull": true,
+    "browser": true,
+    "devel":true,
+    "globals": {
+      "window": true,
+      "define": true,
+      "require": true
+    }
+}

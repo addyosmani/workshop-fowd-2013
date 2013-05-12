@@ -1,0 +1,270 @@
+Backbone-Kitlers!
+==========================
+
+A simple Yeoman/Bower/Grunt + Backbone + RequireJS application tutorial lasting 10-15 minutes.
+If this is your first time playing with these tools, you may find the Yeoman 
+[Getting Started](http://yeoman.io/gettingstarted.html) guide or this [Bower and Grunt](http://gpiot.com/twitter-bower-grunt-get-started-with-assets-management/) 
+tutorial to be of help.
+
+How to run /app
+===========================
+
+$ npm install -g yo grunt-cli bower
+$ grunt server
+
+If you run into issues, npm install grunt and npm install in case any dependencies aren't
+correctly resolved.
+
+You can then use the global variable R from the console to test some calls on the main KitlerDB View.
+
+Sample call:
+
+```
+R.klv.col.at(2).set("name", "Evil Kitty!");
+```
+
+
+Kitlers Tutorial
+===============================
+
+
+Notes
+==============
+
+The following 10-20 minute tutorial will help you build a simple Kitlers face detection application.
+ 
+Once you've completed your first pass of creating the app and are confident it works when you run 
+'grunt server', explore what steps might have made building this app easier. 
+
+For example, would using the yeoman Backbone generator (npm install -g generator-backbone) have saved
+you additional time when scaffolding our models, views and collections? Take a look at the docs for it
+over at https://github.com/yeoman/generator-backbone to learn more.
+
+If you had previously installed a development version of Grunt 0.4 or any grunt-contrib plugins, be 
+sure to flush your npm cache with npm cache clean first to ensure that you are pulling the final 
+version of Grunt and grunt-contrib plugins.
+
+Instructions
+==============
+
+Install Yeoman by running:
+
+$ npm install -g yo grunt-cli bower
+
+Then scaffold out a new web application using:
+
+$ yo webapp
+
+selecting Y for the RequireJS option and N for the others.
+
+Next, install your Bower and NPM dependencies:
+
+$ npm install && bower install
+
+For your data, copy over the static files in /images and kitlers.json
+under /app to your new application folder.
+
+$ ln -s Gruntfile.js grunt.js
+
+You should now be able to run commands like grunt jshint, grunt test
+
+$ grunt server
+
+Will allow you to preview the application. Because this app supports LiveReload
+you should be able to make changes in your editor and have them automatically display
+in the browser without having to do a manual refresh. This is particularly nice for 
+editing side-by-side with your browser window there for previewing and debugging.
+
+In your index.html file, paste the following HTML:
+
+        <div class="navbar navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container">
+              <a class="brand" href="#">Backbone Live Code</a>
+              <div class="nav-collapse">
+                <ul class="nav">
+                  <li><a href="#">Home</a></li>
+                  <li><a href="#kitlers">KitlerDB</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container" style="padding-top: 60px;">
+
+          <div class="page" id="page_home">
+            Welcome!
+          </div>
+
+          <ul class="page" id="page_list">
+
+          </ul>
+
+        </div>
+
+        <script type="text/template" id="kitemplate">
+          <li class='thumbnail span3'>
+            <img src='<%= m.get("url") %>'/>
+            <div class='caption'><%= m.get("name") %></div>
+            <button class="btn detect">Detect</button>
+          </li>
+        </script>
+
+
+paste the following into main.js:
+
+require.config({
+    paths: {
+        jquery: '../components/jquery/jquery',
+        backbone: '../components/backbone/backbone',
+        underscore: '../components/underscore/underscore',
+        bootstrap: 'vendor/bootstrap'
+    },
+    shim: {
+        bootstrap: {
+            deps: ['jquery'],
+            exports: 'jquery'
+        },
+        backbone: {
+            deps: ['underscore'],
+            exports: 'Backbone'
+        },
+        underscore: {
+            deps: [''],
+            exports: '_'
+        }
+    }
+});
+
+
+then:
+
+    $(function() {
+        window.R = new Router();
+        window.R.start();
+    });
+
+
+Paste the following into router.js:
+
+define(["backbone", "jquery", "views/kitlers"], function (Backbone, $, KitlersView) {
+
+  return Backbone.Router.extend({
+
+    routes: {
+      "":"home",
+      "kitlers":"list"
+    },
+
+    changePage:function(id) {
+      $(".page").hide();
+      $("#page_"+id).show();
+    },
+
+    home:function() {
+      this.changePage("home");
+    },
+
+    list:function() {
+      this.changePage("list");
+      this.klv = new KitlersView();
+    },
+
+    start:function() {
+      Backbone.history.start();
+    }
+
+  });
+});
+
+
+Paste your base view into /views/kitlers.js:
+
+
+define(["backbone", "jquery", "underscore", "collections/kitlers"], function (Backbone, $, _, KitlersCol) {
+
+  return Backbone.View.extend({
+    el:"#page_list",
+
+    _itemTpl:_.template($("#kitemplate").html()),
+
+    events:{
+    },
+
+    initialize:function() {
+
+      this.col = new KitlersCol();
+
+      this.col.on("all",this.render,this);
+
+      this.col.fetch();
+
+    },
+
+    render:function() {
+      this.$el.html(
+        this.col.map(function(k) {
+          return this._itemTpl({"m":k});
+        },this).join("")
+      );
+    }
+  });
+});
+
+
+
+Paste your base collection into collections/kitlers.js:
+
+define(["backbone", "models/kitler"], function (Backbone, KitlerModel) {
+
+  return Backbone.Collection.extend({
+    model:KitlerModel,
+    url:"/kitlers.json"
+  });
+});
+
+
+
+Paste your base model into models/kitlers.js:
+
+define(["backbone"], function (Backbone) {
+
+  return Backbone.Model.extend({
+    shout:function() {
+      alert(this.get("name"));
+    }
+  });
+});
+
+
+then play with the app via the Chrome console as shown earlier. You have
+access to collection.pop(), model.get(), model.set(), model.save() and so on.
+
+BONUS: Kitler face detection!
+
+Get face.js in app/scripts/vendor + requirejs conf + require():
+
+Add this to the model and then play with the buttons:
+
+    detect:function(evt) {
+      var img = $("img",$(evt.target).parent());
+      var coordinates = img.faceDetection();
+
+       if(coordinates.length) {
+          coordinates.forEach(function(coord) {
+
+            $("<div>", {
+              css: {
+                position: "absolute",
+                left: coord.positionX - 5 + parseInt(img.css("margin-left"),10) + "px",
+                top: coord.positionY - 5 + "px",
+                width: coord.width + "px",
+                height: coord.height + "px",
+                border: "3px solid red"
+              }
+            }).appendTo(img.parent());
+          });
+       }
+    }
+
