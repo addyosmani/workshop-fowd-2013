@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Git Issues</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+
+    .issues{
+        margin:20px;
+    }
+
+    .issue{
+        margin-top: 30px;
+    }
+
+    .comment{
+        margin-top: 20px;
+    }
+
+    .nameTag{
+        background-color: #D1DFEF;
+        color: #2968A1;
+        padding: 0.3em;
+        font: bold 1.4em Arial,Tahoma,Calibri,Verdana,Geneva,sans-serif;
+    }
+
+    .postContent{
+        background-color: #e9e9e9;
+        padding: 10px;
+    }
+
+    .title{
+        color: #E56500;
+        font: bold 1em Tahoma,Calibri,Verdana,Geneva,sans-serif;
+        border-bottom: 1px solid #C8C8C8;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+        overflow: auto;
+    }
+
+    .content{
+        padding: 5px 10px 10px;
+        overflow: auto;
+    }
+
+    .pagination{
+        clear:both;
+        position:relative;
+        text-align:center;
+    }
+
+    hr{
+        margin: 5px 0;
+    }
+    </style>
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+        <div class='span12' id='issue-list'>
+        <div class='page'></div>
+        <div class='comment'></div>
+        </div>
+    </div>
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/backbone.js"></script>
+    <script src="js/issues-viewer.js"></script>
+    <script src="js/issues-viewer-helper.js"></script>
+
+    <script type="text/template" id="issue-list-template">
+      <%= renderIssueListTemplate(issues) %>
+    </script>
+
+    <script type="text/template" id="single-issue-template">
+      <%= renderSingleIssueTemplate(comments, issue) %>
+    </script>
+  
+  </body>
+</html>
