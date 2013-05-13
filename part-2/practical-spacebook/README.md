@@ -17,9 +17,9 @@ Bonus
 If you would like to explore RequireJS and Tooling, but don't think you'll have time for the Kitlers tutorial, you could use [Yeoman](http://yeoman.io) and [Generator-Backbone](https://github.com/yeoman/generator-backbone) to scaffold out RequireJS + Backbone pieces for your app and try
 to modularize the Spacebook app we just looked at. e.g:
 
-$ yo bbb:view Signup
-$ yo bbb:view CreateStatus
-$ yo bbb:model User
-$ yo bbb:model Post
-$ yo bbb:collection Post
-$ yo bbb:view Post
+$ yo backbone:view Signup
+$ yo backbone:view CreateStatus
+$ yo backbone:model User
+$ yo backbone:model Post
+$ yo backbone:collection Post
+$ yo backbone:view Post
