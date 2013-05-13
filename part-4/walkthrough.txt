@@ -1,0 +1,73 @@
+<!-- 
+A quick Aura/Hull demo 
+Use: http://hull.io/try
+-->
+
+<!-- Gimme some Social login options -->
+<!-- I can offer up all options as a widget-->
+<div data-hull-widget="identity@hull"></div>
+
+<!--
+or get more granular control. Compare using different providers
+
+<div data-hull-widget="login_button@hull"></div>
+<div data-hull-widget="login_button@hull" data-hull-provider="instagram"></div>
+<div data-hull-widget="login_button@hull" data-hull-provider="facebook"></div>
+<div data-hull-widget="login_button@hull" data-hull-provider="github"></div>
+<div data-hull-widget="login_button@hull" data-hull-provider="github,facebook"></div>
+-->
+
+<!-- display the read-only activity on a stream -->
+<!--
+<div data-hull-widget="activity@hull" data-hull-per-page="10"></div>
+-->
+
+<!-- swap out activity@ widget for comments-->
+<!--
+<div data-hull-widget="comments@hull" data-hull-id="app"></div>
+-->
+
+<!--login with Instagram or Facebook to fetch your images-->
+<!--
+<div class="row">
+  <div class="cell-6">
+    <div data-hull-widget="images@hull" data-hull-provider="instagram"></div>
+  </div>
+  <div class="cell-6">
+    <div data-hull-widget="images@hull" data-hull-provider="facebook"></div>
+  </div>
+</div>
+-->
+
+<!--login with facebook or twitter to display your friends list-->
+<!--
+<div class="row">
+  <div class="cell-6">
+    <div data-hull-widget="friends@hull" data-hull-provider="facebook"></div>
+  </div>
+  <div class="cell-6">
+    <div data-hull-widget="friends@hull" data-hull-provider="twitter"></div>
+  </div>
+</div>
+-->
+
+<!-- The list button adds or removes an object from a list.
+  Lists are created on the fly. -->
+<!--
+<span data-hull-widget="list_toggle@hull" data-hull-id="app" data-hull-list-name="Favorites"></span>
+<span data-hull-widget="list_toggle@hull" data-hull-id="app" data-hull-list-name="Likes"></span>
+-->
+
+<!--add a page toggle-->
+<!--
+<div data-hull-widget="list_toggle@hull" data-hull-id="app" data-hull-list-name="favorites"></div>
+-->
+
+<!-- quiz widget using a data source
+
+<div class="quiz-wrapper">
+  <div data-hull-widget="background"></div>
+  <div data-hull-widget="quiz@hull" data-hull-id="5130a76ed4384e508f000009"></div>
+</div>
+
+-->
