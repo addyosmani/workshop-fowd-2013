@@ -15,8 +15,8 @@ var $$ = function(sel) {
 function addPhoto(parentEl, animate) {
 
     // 1 prescale
-    // var imageUrl = 'photos/scotland' + (photoCount + 1) + '-small.jpg';
-    var imageUrl = 'photos/scotland' + (photoCount + 1) + '.jpg';
+    var imageUrl = 'photos/scotland' + (photoCount + 1) + '-small.jpg';
+    //var imageUrl = 'photos/scotland' + (photoCount + 1) + '.jpg';
 
     photoCount = ++photoCount % TOTAL_PHOTO_COUNT;
 
@@ -73,14 +73,12 @@ function update() {
     // 2 remove forced layout events
     //var listHeight = photoList.clientHeight;
 
-    // 2
-    // var loadingBoundary = listHeight + 100;
-    var loadingBoundary = photoList.clientHeight + 100;
-
     while (true) {
         var viewportBottom = scrollTop + window.innerHeight;
 
-        var loadingBoundary = listHeight + 100;
+        var loadingBoundary = photoList.clientHeight + 100;
+        //var loadingBoundary = listHeight + 100;
+
 
         if (photoList.lastChild && viewportBottom < loadingBoundary)
             break;
